@@ -1,0 +1,13 @@
+{
+    "files.eol": "\n",
+    "cSpell.customDictionaries": {
+        "custom-dictionary-linux": {
+            "name": "custom-dictionary-linux",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-linux.txt",
+            "addWords": true,
+            "scope": "workspace"
+        }
+    },
+    "markdown.preview.breaks": true,
+    "markdown-pdf.breaks": true
+}
