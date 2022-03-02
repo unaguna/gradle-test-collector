@@ -221,8 +221,8 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_name_esc=${project_name//:/__}
     test_result_xml_dir="$project_dir/build/test-results/test"
     test_result_html_dir="$project_dir/build/reports/tests/test"
-    test_result_xml_tar="$output_xml_dir/$project_name_esc.tgz"
-    test_result_html_dist_dir="$output_report_dir/$project_name_esc"
+    test_result_xml_tar="$output_xml_dir/${project_name_esc:-"root"}.tgz"
+    test_result_html_dist_dir="$output_report_dir/${project_name_esc:-"root"}"
     go_mod_path="$project_dir/go.mod"
 
     # Even if the build.gradle file exists, 
@@ -233,20 +233,20 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "$project_name" NO-TASK
+        echo "${project_name:-"root"}" NO-TASK
     elif [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "$project_name" GO
+            echo "${project_name:-"root"}" GO
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "$project_name" INTEGRATION-TEST
+            echo "${project_name:-"root"}" INTEGRATION-TEST
         else
-            echo "$project_name" NO-TESTS
+            echo "${project_name:-"root"}" NO-TESTS
         fi
     else
         # Count tests and print it
         row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
         result_str=$(awk -F ' ' '{print $1}' <<< "$row_data")
-        echo "$project_name" "$row_data"
+        echo "${project_name:-"root"}" "$row_data"
 
         # Collect the XML test report
         (
