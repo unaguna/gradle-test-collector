@@ -7,8 +7,6 @@
 set -eu
 set -o pipefail
 
-set -C
-
 
 ################################################################################
 # Functions
@@ -27,6 +25,31 @@ function echo_info () {
     echo "$SCRIPT_NAME: " "$@" >&2
 }
 
+# Check if the specified string is a name of sub-project
+#
+# Arguments
+#   $1: a string
+#   $2: the path of output of `gradle projects`
+#
+# Returns
+#   Returns 0 if the specified string is a name of sub-project.
+#   Returns 1 otherwise.
+function is_sub_project () {
+    local -r sub_project_name=$1
+    local -r project_list_path=$2
+
+    set +e
+    grep -e "$sub_project_name" "$project_list_path" &> /dev/null
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to reference the temporary file created: $project_list_path"
+        exit $result
+    fi
+
+    return $result
+}
 
 ################################################################################
 # Constant values
@@ -96,6 +119,32 @@ fi
 
 
 ################################################################################
+# Temporally files
+################################################################################
+
+# All temporally files which should be deleted on exit
+tmpfile_list=( )
+
+function remove_tmpfile {
+    set +e
+    for tmpfile in "${tmpfile_list[@]}"
+    do
+        if [ -e "$tmpfile" ]; then
+            rm -f "$tmpfile"
+        fi
+    done
+    set -e
+}
+trap remove_tmpfile EXIT
+trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
+
+# the output of `gradle projects`
+tmp_project_list_path=$(mktemp)
+readonly tmp_project_list_path
+tmpfile_list+=( "$tmp_project_list_path" )
+
+
+################################################################################
 # main
 ################################################################################
 
@@ -112,6 +161,11 @@ if [ -n "$stdout_dir" ]; then
     mkdir "$stdout_dir"
 fi
 
+# Get sub-projects list
+task_name="projects"
+echo_info "Start '$task_name'"
+./gradlew "$task_name" < /dev/null > "$tmp_project_list_path"
+echo_info "Completed '$task_name'"
 
 # Disable UP-TO-DATE
 task_name="cleanTest"
@@ -126,6 +180,12 @@ find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
     project_name_esc=${project_name//:/__}
     task_name="${project_name}:test"
+
+    # Even if the build.gradle file exists, 
+    # ignore it if it is not recognized as a sub project by the root project.
+    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+        continue
+    fi
 
     # Decide filepath where output.
     output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
