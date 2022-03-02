@@ -9,6 +9,29 @@ set -o pipefail
 
 
 ################################################################################
+# Script information
+################################################################################
+
+# The current directory when this script started.
+ORIGINAL_PWD=$(pwd)
+readonly ORIGINAL_PWD
+# The directory path of this script file
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
+readonly SCRIPT_DIR
+# The path of this script file
+SCRIPT_NAME=$(basename "$0")
+readonly SCRIPT_NAME
+
+
+################################################################################
+# Include
+################################################################################
+
+# shellcheck source=libs/ana-gradle.sh
+source "$SCRIPT_DIR/libs/ana-gradle.sh"
+
+
+################################################################################
 # Functions
 ################################################################################
 
@@ -25,45 +48,9 @@ function echo_info () {
     echo "$SCRIPT_NAME: " "$@" >&2
 }
 
-# Check if the specified string is a name of sub-project
-#
-# Arguments
-#   $1: a string
-#   $2: the path of output of `gradle projects`
-#
-# Returns
-#   Returns 0 if the specified string is a name of sub-project.
-#   Returns 1 otherwise.
-function is_sub_project () {
-    local -r sub_project_name=$1
-    local -r project_list_path=$2
-
-    set +e
-    grep -e "$sub_project_name" "$project_list_path" &> /dev/null
-    result=$?
-    set -e
-
-    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
-        echo_err "Failed to reference the temporary file created: $project_list_path"
-        exit $result
-    fi
-
-    return $result
-}
-
 ################################################################################
 # Constant values
 ################################################################################
-
-# The current directory when this script started.
-ORIGINAL_PWD=$(pwd)
-readonly ORIGINAL_PWD
-# The directory path of this script file
-SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
-readonly SCRIPT_DIR
-# The filename of this script file
-SCRIPT_NAME=$(basename "$0")
-readonly SCRIPT_NAME
 
 readonly GET_SUMMARY_SCRIPT="$SCRIPT_DIR/test-summary.sh"
 

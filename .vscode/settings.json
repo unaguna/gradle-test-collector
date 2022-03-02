@@ -9,5 +9,8 @@
         }
     },
     "markdown.preview.breaks": true,
-    "markdown-pdf.breaks": true
+    "markdown-pdf.breaks": true,
+    "shellcheck.customArgs": [
+        "-x"
+    ]
 }
