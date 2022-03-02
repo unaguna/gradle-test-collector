@@ -39,6 +39,32 @@ function echo_usage() {
     echo "Usage: $SCRIPT_NAME -d <output_dir> <main-project-path>" 1>&2
 }
 
+# Check if the specified string is a name of sub-project
+#
+# Arguments
+#   $1: a string
+#   $2: the path of output of `gradle projects`
+#
+# Returns
+#   Returns 0 if the specified string is a name of sub-project.
+#   Returns 1 otherwise.
+function is_sub_project () {
+    local -r sub_project_name=$1
+    local -r project_list_path=$2
+
+    set +e
+    grep -e "$sub_project_name" "$project_list_path" &> /dev/null
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to reference the temporary file created: $project_list_path"
+        exit $result
+    fi
+
+    return $result
+}
+
 # Check task existence
 #
 # Arguments
@@ -144,6 +170,11 @@ function remove_tmpfile {
 trap remove_tmpfile EXIT
 trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
 
+# the output of `gradle projects`
+tmp_project_list_path=$(mktemp)
+readonly tmp_project_list_path
+tmpfile_list+=( "$tmp_project_list_path" )
+
 # the output of `gradle tasks`
 tmp_tasks_path=$(mktemp)
 readonly tmp_tasks_path
@@ -176,6 +207,9 @@ if [ -n "$output_xml_dir" ]; then
 fi
 
 
+# Get sub-projects list
+./gradlew projects < /dev/null >> "$tmp_project_list_path"
+
 # get task list
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
@@ -190,6 +224,12 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     test_result_xml_tar="$output_xml_dir/$project_name_esc.tgz"
     test_result_html_dist_dir="$output_report_dir/$project_name_esc"
     go_mod_path="$project_dir/go.mod"
+
+    # Even if the build.gradle file exists, 
+    # ignore it if it is not recognized as a sub project by the root project.
+    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+        continue
+    fi
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
