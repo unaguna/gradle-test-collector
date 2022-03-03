@@ -15,7 +15,7 @@ function is_sub_project () {
     local -r project_list_path=$2
 
     set +e
-    grep -e "$sub_project_name" "$project_list_path" &> /dev/null
+    grep -e "Project '$sub_project_name'$" "$project_list_path" &> /dev/null
     result=$?
     set -e
 
