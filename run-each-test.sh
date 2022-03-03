@@ -7,7 +7,28 @@
 set -eu
 set -o pipefail
 
-set -C
+
+################################################################################
+# Script information
+################################################################################
+
+# The current directory when this script started.
+ORIGINAL_PWD=$(pwd)
+readonly ORIGINAL_PWD
+# The directory path of this script file
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
+readonly SCRIPT_DIR
+# The path of this script file
+SCRIPT_NAME=$(basename "$0")
+readonly SCRIPT_NAME
+
+
+################################################################################
+# Include
+################################################################################
+
+# shellcheck source=libs/ana-gradle.sh
+source "$SCRIPT_DIR/libs/ana-gradle.sh"
 
 
 ################################################################################
@@ -27,20 +48,9 @@ function echo_info () {
     echo "$SCRIPT_NAME: " "$@" >&2
 }
 
-
 ################################################################################
 # Constant values
 ################################################################################
-
-# The current directory when this script started.
-ORIGINAL_PWD=$(pwd)
-readonly ORIGINAL_PWD
-# The directory path of this script file
-SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
-readonly SCRIPT_DIR
-# The filename of this script file
-SCRIPT_NAME=$(basename "$0")
-readonly SCRIPT_NAME
 
 readonly GET_SUMMARY_SCRIPT="$SCRIPT_DIR/test-summary.sh"
 
@@ -96,6 +106,32 @@ fi
 
 
 ################################################################################
+# Temporally files
+################################################################################
+
+# All temporally files which should be deleted on exit
+tmpfile_list=( )
+
+function remove_tmpfile {
+    set +e
+    for tmpfile in "${tmpfile_list[@]}"
+    do
+        if [ -e "$tmpfile" ]; then
+            rm -f "$tmpfile"
+        fi
+    done
+    set -e
+}
+trap remove_tmpfile EXIT
+trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
+
+# the output of `gradle projects`
+tmp_project_list_path=$(mktemp)
+readonly tmp_project_list_path
+tmpfile_list+=( "$tmp_project_list_path" )
+
+
+################################################################################
 # main
 ################################################################################
 
@@ -112,6 +148,11 @@ if [ -n "$stdout_dir" ]; then
     mkdir "$stdout_dir"
 fi
 
+# Get sub-projects list
+task_name="projects"
+echo_info "Start '$task_name'"
+./gradlew "$task_name" < /dev/null > "$tmp_project_list_path"
+echo_info "Completed '$task_name'"
 
 # Disable UP-TO-DATE
 task_name="cleanTest"
@@ -126,6 +167,12 @@ find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
     project_name_esc=${project_name//:/__}
     task_name="${project_name}:test"
+
+    # Even if the build.gradle file exists, 
+    # ignore it if it is not recognized as a sub project by the root project.
+    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+        continue
+    fi
 
     # Decide filepath where output.
     output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
