@@ -67,7 +67,7 @@ class Args:
     """
     template_path: str
     summary_path: str
-    output_path: str
+    output_dir_path: str
 
     def __init__(self):
         parser = argparse.ArgumentParser()
@@ -75,23 +75,25 @@ class Args:
                             help='',
                             default=None)
         parser.add_argument("summary_path")
-        parser.add_argument("output_path")
+        parser.add_argument("output_dir_path")
 
         arguments = parser.parse_args()
 
         self.template_path = noneor(arguments.template,
                                     os.path.join(SCRIPT_DIR, 'report_index_template.html'))
-        self.output_path = arguments.output_path
+        self.output_dir_path = arguments.output_dir_path
         self.summary_path = arguments.summary_path
 
 
 if __name__ == '__main__':
     args = Args()
 
+    output_index_path = os.path.join(args.output_dir_path, "index.html")
+
     summary_list = load_summary(args.summary_path)
 
     with open(args.template_path, 'r') as f:
         output_text = chevron.render(f, {'project_table': summary_list})
     
-    with open(args.output_path, 'w') as f:
+    with open(output_index_path, 'w') as f:
         print(output_text, file=f)

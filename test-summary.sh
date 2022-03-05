@@ -228,4 +228,4 @@ sort "$tmp_summary_path" -o "$tmp_summary_path"
 cp "$tmp_summary_path" "$summary_path"
 
 # Output index page of HTML reports
-"$CREATE_REPORT_INDEX" --template "$REPORT_INDEX_TEMPLATE" "$tmp_summary_path" "$output_report_dir/index.html"
+"$CREATE_REPORT_INDEX" --template "$REPORT_INDEX_TEMPLATE" "$tmp_summary_path" "$output_report_dir"
