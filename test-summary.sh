@@ -71,8 +71,6 @@ readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
 readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
 
-readonly REPORT_INDEX_TEMPLATE="$SCRIPT_DIR/report_index_template.html"
-
 
 ################################################################################
 # Analyze arguments
@@ -228,4 +226,4 @@ sort "$tmp_summary_path" -o "$tmp_summary_path"
 cp "$tmp_summary_path" "$summary_path"
 
 # Output index page of HTML reports
-"$CREATE_REPORT_INDEX" --template "$REPORT_INDEX_TEMPLATE" "$tmp_summary_path" "$output_report_dir"
+"$CREATE_REPORT_INDEX" "$tmp_summary_path" "$output_report_dir"

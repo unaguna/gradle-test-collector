@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Test Summary</title>
+</head>
+<body>
+    <table>
+        <thead>
+            <tr>
+                <th>Sub-project</th>
+                <th>result</th>
+                <th>passed</th>
+                <th>failures</th>
+                <th>errors</th>
+                <th>skipped</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#project_table}}
+            <tr>
+                <td>
+                    <a href="./{{project_name_esc}}/index.html">
+                        {{project_name}}
+                    </a>
+                </td>
+                <td>
+                    {{result_str}}
+                </td>
+                <td>
+                    {{passed}}
+                </td>
+                <td>
+                    {{failures}}
+                </td>
+                <td>
+                    {{errors}}
+                </td>
+                <td>
+                    {{skipped}}
+                </td>
+            </tr>
+            {{/project_table}}
+        </tbody>
+    </table>
+</body>
+</html>
