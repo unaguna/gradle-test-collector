@@ -40,10 +40,28 @@ class Summary:
     project_name: str
     project_name_esc: str
     result_str: str
+    is_effective: bool
+    tests: Optional[int]
     passed: Optional[int]
     failures: Optional[int]
     errors: Optional[int]
     skipped: Optional[int]
+
+    @classmethod
+    def decide_tests(cls,
+                     passed: Optional[int],
+                     failures: Optional[int],
+                     errors: Optional[int],
+                     skipped: Optional[int]) -> Optional[int]:
+        count_list = list(filter(lambda x: x is not None, [passed, failures, errors, skipped]))
+        if len(count_list) > 0:
+            return sum(count_list, 0)
+        else:
+            return None
+
+    @classmethod
+    def decide_is_effective(self, tests: Optional[int]) -> bool:
+        return tests is not None
 
     @classmethod
     def from_line(cls, line: str) -> 'Summary':
@@ -69,6 +87,9 @@ class Summary:
             result.skipped = int(line_parts[5])
         else:
             result.skipped = None
+        
+        result.tests = cls.decide_tests(result.passed, result.failures, result.errors, result.skipped)
+        result.is_effective = cls.decide_is_effective(result.tests)
 
         return result
 

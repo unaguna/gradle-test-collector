@@ -73,11 +73,25 @@
         </thead>
         <tbody>
             {{#project_table}}
-            <tr class="summary_table__record summary_table__record--{{result_str}}">
+            <tr class="
+                    summary_table__record
+                    summary_table__record--{{result_str}}
+                    {{#is_effective}}
+                    summary_table__record--effective
+                    {{/is_effective}}
+                    {{^is_effective}}
+                    summary_table__record--not_effective
+                    {{/is_effective}}
+
+                ">
                 <td class="summary_table__project_name_cell">
+                    {{#is_effective}}
                     <a href="./{{project_name_esc}}/index.html">
+                    {{/is_effective}}
                         {{project_name}}
+                    {{#is_effective}}
                     </a>
+                    {{/is_effective}}
                 </td>
                 <td class="summary_table__result_cell">
                     {{result_str}}
