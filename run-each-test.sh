@@ -137,7 +137,6 @@ tmpfile_list+=( "$tmp_project_list_path" )
 
 cd "$main_project_dir"
 
-readonly summary_path="$output_dir/summary.txt"
 readonly stdout_dir="$output_dir/stdout"
 
 # create the directory where output
@@ -190,4 +189,4 @@ done
 
 
 # Aggregate the test results
-"$GET_SUMMARY_SCRIPT" -d "$output_dir" "$main_project_dir" | sort > "$summary_path"
+"$GET_SUMMARY_SCRIPT" -d "$output_dir" "$main_project_dir"
