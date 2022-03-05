@@ -2,10 +2,65 @@
 <html>
 <head>
     <meta charset="UTF-8">
+    <style type="text/css">
+        .summary_table__table {
+            border-collapse: collapse;
+        }
+        .summary_table__table tr {
+            border-bottom: rgba(0, 0, 0, 0) 3px dashed;
+        }
+        .summary_table__table tr:hover {
+            border-bottom: black 3px dashed;
+        }
+        .summary_table__record--passed {
+            color: #008000;
+            background-color: #bbd9bb;
+        }
+        .summary_table__record--failed {
+            color: #b60808;
+            background-color: #ecdada;
+        }
+        .summary_table__record--ignored {
+            color: #976e27;
+            background-color: #eedfc8;
+        }
+        .summary_table__record--NO-TESTS {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__record--NO-TASK {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__record--GO {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__table td {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .summary_table__project_name_cell a {
+            color: unset;
+            text-decoration: none;
+        }
+        .summary_table__project_name_cell a:hover {
+            text-decoration: underline;
+        }
+        .summary_table__result_cell {
+            padding: 0 0.25em;
+            width: 6em;
+        }
+        .summary_table__numeric_cell {
+            padding: 0 0.25em;
+            width: 4em;
+            text-align: right;
+        }
+    </style>
     <title>Test Summary</title>
 </head>
 <body>
-    <table>
+    <table class="summary_table__table">
         <thead>
             <tr>
                 <th>Sub-project</th>
@@ -18,25 +73,25 @@
         </thead>
         <tbody>
             {{#project_table}}
-            <tr>
-                <td>
+            <tr class="summary_table__record summary_table__record--{{result_str}}">
+                <td class="summary_table__project_name_cell">
                     <a href="./{{project_name_esc}}/index.html">
                         {{project_name}}
                     </a>
                 </td>
-                <td>
+                <td class="summary_table__result_cell">
                     {{result_str}}
                 </td>
-                <td>
+                <td class="summary_table__numeric_cell">
                     {{passed}}
                 </td>
-                <td>
+                <td class="summary_table__numeric_cell">
                     {{failures}}
                 </td>
-                <td>
+                <td class="summary_table__numeric_cell">
                     {{errors}}
                 </td>
-                <td>
+                <td class="summary_table__numeric_cell">
                     {{skipped}}
                 </td>
             </tr>
