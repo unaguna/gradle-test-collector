@@ -9,12 +9,12 @@ from typing import Sequence
 from xml.etree import ElementTree
 
 
-Args = namedtuple('Args', ['test_xml_list'])
+Args = namedtuple("Args", ["test_xml_list"])
 
 
 class TestSummary:
-    """Test summary of tests of one sub-project.
-    """
+    """Test summary of tests of one sub-project."""
+
     #: The number of tests
     tests: int
     #: The number of tests passed
@@ -32,21 +32,20 @@ class TestSummary:
         self.failures = failures
         self.errors = errors
         self.skipped = skipped
-    
-    def __add__(self, other) -> 'TestSummary':
+
+    def __add__(self, other) -> "TestSummary":
         if not isinstance(other, TestSummary):
             return NotImplemented
-        
+
         return TestSummary(
             self.tests + other.tests,
             self.failures + other.failures,
             self.errors + other.errors,
             self.skipped + other.skipped,
         )
-    
+
     def result(self) -> str:
-        """Result such as 'passed' or 'failed'
-        """
+        """Result such as 'passed' or 'failed'"""
         if self.tests <= 0:
             return "NO-TESTS"
         elif self.failures > 0:
@@ -57,9 +56,9 @@ class TestSummary:
             return "ignored"
         else:
             return "passed"
-    
+
     @classmethod
-    def zero(cls) -> 'TestSummary':
+    def zero(cls) -> "TestSummary":
         """Zero element of TestSummary
 
         It is used by a start value of `sum()`.
@@ -73,7 +72,7 @@ class TestSummary:
 def analyze_arguments(args: Sequence[str]) -> Args:
     if len(args) < 2:
         raise Exception(f"Illegal arguments: {args}")
-    
+
     test_xml_list = args[1:]
 
     return Args(test_xml_list=test_xml_list)
@@ -92,22 +91,28 @@ def load_summary(xml_path: str) -> TestSummary:
 
     testsuite = xml_tree.getroot()
     if testsuite is None:
-        testsuite = xml_tree.getroot().find('testsuite')
+        testsuite = xml_tree.getroot().find("testsuite")
     if testsuite is None:
         raise Exception(f"<testsuite> is not found in the xml: {args}")
 
-    tests = int(testsuite.attrib['tests'])
-    skipped = int(testsuite.attrib['skipped'])
-    failures = int(testsuite.attrib['failures'])
-    errors = int(testsuite.attrib['errors'])
+    tests = int(testsuite.attrib["tests"])
+    skipped = int(testsuite.attrib["skipped"])
+    failures = int(testsuite.attrib["failures"])
+    errors = int(testsuite.attrib["errors"])
 
     summary = TestSummary(tests, failures, errors, skipped)
     return summary
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     args = analyze_arguments(sys.argv)
 
     summary = sum(map(load_summary, args.test_xml_list), start=TestSummary.zero())
 
-    print(summary.result(), summary.passed, summary.failures, summary.errors, summary.skipped)
+    print(
+        summary.result(),
+        summary.passed,
+        summary.failures,
+        summary.errors,
+        summary.skipped,
+    )

@@ -16,6 +16,11 @@
     },
     "markdown.preview.breaks": true,
     "markdown-pdf.breaks": true,
+    "python.formatting.provider": "black",
+    "[python]": {
+        "editor.defaultFormatter": null, // Prettier を使わないようにする
+        "editor.formatOnSave": true // ファイル保存時に自動フォーマット
+    },
     "shellcheck.customArgs": [
         "-x"
     ]
