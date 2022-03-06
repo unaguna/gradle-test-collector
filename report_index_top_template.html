@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <style type="text/css">
+        .clickable {
+            cursor: pointer;
+        }
+        .summary_table__table {
+            border-collapse: collapse;
+        }
+        .summary_table__table tr {
+            border-bottom: rgba(0, 0, 0, 0) 3px dashed;
+        }
+        .summary_table__table tr:hover {
+            border-bottom: black 3px dashed;
+        }
+        .summary_table__record--passed {
+            color: #008000;
+            background-color: #bbd9bb;
+        }
+        .summary_table__record--failed {
+            color: #b60808;
+            background-color: #ecdada;
+        }
+        .summary_table__record--ignored {
+            color: #976e27;
+            background-color: #eedfc8;
+        }
+        .summary_table__record--NO-TESTS {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__record--NO-TASK {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__record--GO {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__table td {
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+        .summary_table__project_name_cell a {
+            color: unset;
+            text-decoration: none;
+        }
+        .summary_table__project_name_cell a:hover {
+            text-decoration: underline;
+        }
+        .summary_table__result_cell {
+            padding: 0 0.25em;
+            width: 6em;
+        }
+        .summary_table__numeric_cell {
+            padding: 0 0.25em;
+            width: 4em;
+            text-align: right;
+        }
+    </style>
+    <script type="text/javascript">
+        window.onload = function() {
+            for(let e of document.getElementsByClassName("clickable")) {
+                e.onclick = function() {
+                    window.location = e.dataset.href;
+                };
+            }
+        };
+    </script>
+    <title>Test Summary</title>
+</head>
+<body>
+    <table class="summary_table__table">
+        <thead>
+            <tr>
+                <th>Sub-project</th>
+                <th>result</th>
+                <th>passed</th>
+                <th>failures</th>
+                <th>errors</th>
+                <th>skipped</th>
+            </tr>
+        </thead>
+        <tbody>
+            {{#project_table}}
+            <tr class="
+                    summary_table__record
+                    summary_table__record--{{result_str}}
+                    {{#is_effective}}
+                    summary_table__record--effective
+                    {{/is_effective}}
+                    {{^is_effective}}
+                    summary_table__record--not_effective
+                    {{/is_effective}}
+                ">
+                <td class="
+                        summary_table__project_name_cell
+                        {{#is_effective}}
+                        clickable
+                        {{/is_effective}}
+                    "
+                    data-href="./{{project_name_esc}}/index.html">
+                    {{project_name}}
+                </td>
+                <td class="summary_table__result_cell">
+                    {{result_str}}
+                </td>
+                <td class="summary_table__numeric_cell">
+                    {{passed}}
+                </td>
+                <td class="summary_table__numeric_cell">
+                    {{failures}}
+                </td>
+                <td class="summary_table__numeric_cell">
+                    {{errors}}
+                </td>
+                <td class="summary_table__numeric_cell">
+                    {{skipped}}
+                </td>
+            </tr>
+            {{/project_table}}
+        </tbody>
+    </table>
+</body>
+</html>

@@ -69,7 +69,7 @@ function echo_usage() {
 
 readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
-readonly REPORT_INDEX_TEMPLATE="$SCRIPT_DIR/report_index_template.html"
+readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
 
 
 ################################################################################
@@ -143,9 +143,9 @@ readonly tmp_tasks_path
 tmpfile_list+=( "$tmp_tasks_path" )
 
 # the list of HTML report
-tmp_report_list_path=$(mktemp)
-readonly tmp_report_list_path
-tmpfile_list+=( "$tmp_report_list_path" )
+tmp_summary_path=$(mktemp)
+readonly tmp_summary_path
+tmpfile_list+=( "$tmp_summary_path" )
 
 
 ################################################################################
@@ -154,6 +154,7 @@ tmpfile_list+=( "$tmp_report_list_path" )
 
 cd "$main_project_dir"
 
+readonly summary_path="$output_dir/summary.txt"
 readonly output_report_dir="$output_dir/test-report"
 readonly output_xml_dir="$output_dir/xml-report"
 
@@ -195,20 +196,19 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "${project_name:-"root"}" NO-TASK
+        echo "${project_name:-"root"}" NO-TASK >> "$tmp_summary_path"
     elif [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "${project_name:-"root"}" GO
+            echo "${project_name:-"root"}" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "${project_name:-"root"}" INTEGRATION-TEST
+            echo "${project_name:-"root"}" INTEGRATION-TEST >> "$tmp_summary_path"
         else
-            echo "${project_name:-"root"}" NO-TESTS
+            echo "${project_name:-"root"}" NO-TESTS >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
         row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
-        result_str=$(awk -F ' ' '{print $1}' <<< "$row_data")
-        echo "${project_name:-"root"}" "$row_data"
+        echo "${project_name:-"root"}" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
         (
@@ -218,10 +218,12 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
 
         # Collect the HTML test report
         cp -irp "$test_result_html_dir" "$test_result_html_dist_dir"
-        echo "<!-- $project_name --><li class=\"project_list__item project_list__item--$result_str\"><a href=\"./$project_name_esc/index.html\" target=\"main_frame\">$project_name</a></li>" >> "$tmp_report_list_path"
     fi
 done
 
+# Output the summary file
+sort "$tmp_summary_path" -o "$tmp_summary_path"
+cp "$tmp_summary_path" "$summary_path"
+
 # Output index page of HTML reports
-sort "$tmp_report_list_path" -o "$tmp_report_list_path"
-sed "/<!--LIST-->/ r $tmp_report_list_path" "$REPORT_INDEX_TEMPLATE" > "$output_report_dir/index.html"
+"$CREATE_REPORT_INDEX" "$tmp_summary_path" "$output_report_dir"
