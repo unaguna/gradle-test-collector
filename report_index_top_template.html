@@ -3,6 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <style type="text/css">
+        .clickable {
+            cursor: pointer;
+        }
         .summary_table__table {
             border-collapse: collapse;
         }
@@ -57,6 +60,15 @@
             text-align: right;
         }
     </style>
+    <script type="text/javascript">
+        window.onload = function() {
+            for(let e of document.getElementsByClassName("clickable")) {
+                e.onclick = function() {
+                    window.location = e.dataset.href;
+                };
+            }
+        };
+    </script>
     <title>Test Summary</title>
 </head>
 <body>
@@ -82,16 +94,15 @@
                     {{^is_effective}}
                     summary_table__record--not_effective
                     {{/is_effective}}
-
                 ">
-                <td class="summary_table__project_name_cell">
-                    {{#is_effective}}
-                    <a href="./{{project_name_esc}}/index.html">
-                    {{/is_effective}}
-                        {{project_name}}
-                    {{#is_effective}}
-                    </a>
-                    {{/is_effective}}
+                <td class="
+                        summary_table__project_name_cell
+                        {{#is_effective}}
+                        clickable
+                        {{/is_effective}}
+                    "
+                    data-href="./{{project_name_esc}}/index.html">
+                    {{project_name}}
                 </td>
                 <td class="summary_table__result_cell">
                     {{result_str}}
