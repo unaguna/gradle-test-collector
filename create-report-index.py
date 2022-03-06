@@ -14,9 +14,6 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 # The path of this script file
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
 
-# The path of the template HTML file
-TEMPLATE_PATH = os.path.join(SCRIPT_DIR, 'report_index_template.html')
-
 
 def noneor(value, default):
     """null coalescing operator
@@ -47,6 +44,25 @@ class Summary:
     errors: Optional[int]
     skipped: Optional[int]
 
+    def __init__(self,
+                 project_name: str,
+                 result_str: str,
+                 passed: Optional[int],
+                 failures: Optional[int],
+                 errors: Optional[int],
+                 skipped: Optional[int]) -> None:
+        self.project_name = project_name
+        self.result_str = result_str
+        self.passed = passed
+        self.failures = failures
+        self.errors = errors
+        self.skipped = skipped
+
+        self.project_name_esc = project_name.replace(':', '__')
+        
+        self.tests = self.decide_tests(self.passed, self.failures, self.errors, self.skipped)
+        self.is_effective = self.decide_is_effective(self.tests)
+
     @classmethod
     def decide_tests(cls,
                      passed: Optional[int],
@@ -67,29 +83,31 @@ class Summary:
     def from_line(cls, line: str) -> 'Summary':
         line_parts = line.split()
 
-        result = Summary()
-        result.project_name = line_parts[0]
-        result.project_name_esc = line_parts[0].replace(':', '__')
-        result.result_str = line_parts[1]
+        project_name = line_parts[0]
+        result_str = line_parts[1]
         if len(line_parts) > 2:
-            result.passed = int(line_parts[2])
+            passed = int(line_parts[2])
         else:
-            result.passed = None
+            passed = None
         if len(line_parts) > 3:
-            result.failures = int(line_parts[3])
+            failures = int(line_parts[3])
         else:
-            result.failures = None
+            failures = None
         if len(line_parts) > 4:
-            result.errors = int(line_parts[4])
+            errors = int(line_parts[4])
         else:
-            result.errors = None
+            errors = None
         if len(line_parts) > 5:
-            result.skipped = int(line_parts[5])
+            skipped = int(line_parts[5])
         else:
-            result.skipped = None
+            skipped = None
         
-        result.tests = cls.decide_tests(result.passed, result.failures, result.errors, result.skipped)
-        result.is_effective = cls.decide_is_effective(result.tests)
+        result = Summary(project_name=project_name,
+                         result_str=result_str,
+                         passed=passed,
+                         failures=failures,
+                         errors=errors,
+                         skipped=skipped)
 
         return result
 
