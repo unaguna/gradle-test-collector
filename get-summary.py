@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+"""Create a row of summary table
+"""
+
 from collections import namedtuple
 import sys
 from typing import Sequence
@@ -10,10 +13,17 @@ Args = namedtuple('Args', ['test_xml_list'])
 
 
 class TestSummary:
+    """Test summary of tests of one sub-project.
+    """
+    #: The number of tests
     tests: int
+    #: The number of tests passed
     passed: int
+    #: The number of tests failed
     failures: int
+    #: The number of tests errord
     errors: int
+    #: The number of tests skipped
     skipped: int
 
     def __init__(self, tests: int, failures: int, errors: int, skipped: int):
@@ -35,6 +45,8 @@ class TestSummary:
         )
     
     def result(self) -> str:
+        """Result such as 'passed' or 'failed'
+        """
         if self.tests <= 0:
             return "NO-TESTS"
         elif self.failures > 0:
@@ -48,6 +60,13 @@ class TestSummary:
     
     @classmethod
     def zero(cls) -> 'TestSummary':
+        """Zero element of TestSummary
+
+        It is used by a start value of `sum()`.
+
+        Returns:
+            TestSummary: Zero element
+        """
         return TestSummary(0, 0, 0, 0)
 
 
@@ -61,6 +80,14 @@ def analyze_arguments(args: Sequence[str]) -> Args:
 
 
 def load_summary(xml_path: str) -> TestSummary:
+    """Load a xml summary file wrote by Gradle
+
+    Args:
+        xml_path (str): the filepath of the xml summary file
+
+    Returns:
+        TestSummary: New instance.
+    """
     xml_tree = ElementTree.parse(xml_path)
 
     testsuite = xml_tree.getroot()

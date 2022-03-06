@@ -1,5 +1,8 @@
 #!/usr/bin/env python3
 
+"""Create index page of test report with the template and summary data
+"""
+
 import argparse
 import chevron
 import os
@@ -34,14 +37,26 @@ def noneor(value, default):
 
 
 class Summary:
+    """Test summary of tests of one sub-project.
+    """
+
+    #: The name of sub-project
     project_name: str
+    #: The name of sub-project (escape a charactor ':')
     project_name_esc: str
+    #: Result such as 'passed' or 'failed'
     result_str: str
+    #: Whether this record is effective. If no tests are included, this record is not effective.
     is_effective: bool
+    #: The number of tests
     tests: Optional[int]
+    #: The number of tests passed
     passed: Optional[int]
+    #: The number of tests failed
     failures: Optional[int]
+    #: The number of tests errord
     errors: Optional[int]
+    #: The number of tests skipped
     skipped: Optional[int]
 
     def __init__(self,
@@ -69,6 +84,21 @@ class Summary:
                      failures: Optional[int],
                      errors: Optional[int],
                      skipped: Optional[int]) -> Optional[int]:
+        """Calculate the value of the field `tests`
+
+        Normally, this function should be defined as a property, 
+        but in order to be able to refer to it from chevron, 
+        `tests` is defined as a field and this function determines its value.
+
+        Args:
+            passed (Optional[int]): The value of `passed` of the target instance.
+            failures (Optional[int]): The value of `failures` of the target instance.
+            errors (Optional[int]): The value of `errors` of the target instance.
+            skipped (Optional[int]): The value of `skipped` of the target instance.
+
+        Returns:
+            Optional[int]: The value of `tests`
+        """
         count_list = list(filter(lambda x: x is not None, [passed, failures, errors, skipped]))
         if len(count_list) > 0:
             return sum(count_list, 0)
@@ -77,10 +107,30 @@ class Summary:
 
     @classmethod
     def decide_is_effective(self, tests: Optional[int]) -> bool:
+        """Calculate the value of the field `is_effective`
+
+        Normally, this function should be defined as a property, 
+        but in order to be able to refer to it from chevron, 
+        `is_effective` is defined as a field and this function determines its value.
+
+        Args:
+            tests (Optional[int]): The value of `tests` of the target instance.
+
+        Returns:
+            bool: The value of `is_effective`
+        """
         return tests is not None
 
     @classmethod
     def from_line(cls, line: str) -> 'Summary':
+        """Create instance from a line of summary table
+
+        Args:
+            line (str): A line of summary table. 
+
+        Returns:
+            Summary: new instance
+        """
         line_parts = line.split()
 
         project_name = line_parts[0]
@@ -113,6 +163,14 @@ class Summary:
 
 
 def load_summary(summary_path: str) -> list[Summary]:
+    """Load a summary table
+
+    Args:
+        summary_path (str): the filepath of the summary table
+
+    Returns:
+        list[Summary]: New instance. Each element corresponds to a row of the table.
+    """
     result = []
     
     with open(summary_path, 'r') as f:
