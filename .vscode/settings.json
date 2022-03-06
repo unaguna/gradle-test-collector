@@ -6,6 +6,12 @@
             "path": "${workspaceFolder}/.cspell/custom-dictionary-linux.txt",
             "addWords": true,
             "scope": "workspace"
+        },
+        "custom-dictionary-project": {
+            "name": "custom-dictionary-project",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-project.txt",
+            "addWords": true,
+            "scope": "workspace"
         }
     },
     "markdown.preview.breaks": true,

@@ -18,7 +18,7 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
 
 
-def noneor(value, default):
+def dfor(value, default):
     """null coalescing operator
 
     Args:
@@ -201,10 +201,10 @@ class Args:
 
         arguments = parser.parse_args()
 
-        self.template_index_path = noneor(arguments.template_index,
-                                          os.path.join(SCRIPT_DIR, 'report_index_template.html'))
-        self.template_top_path = noneor(arguments.template_top,
-                                        os.path.join(SCRIPT_DIR, 'report_index_top_template.html'))
+        self.template_index_path = dfor(arguments.template_index,
+                                        os.path.join(SCRIPT_DIR, 'report_index_template.html'))
+        self.template_top_path = dfor(arguments.template_top,
+                                      os.path.join(SCRIPT_DIR, 'report_index_top_template.html'))
         self.output_dir_path = arguments.output_dir_path
         self.summary_path = arguments.summary_path
 
