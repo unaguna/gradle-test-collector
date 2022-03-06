@@ -15,6 +15,29 @@ set -C
 
 
 ################################################################################
+# Script information
+################################################################################
+
+# The current directory when this script started.
+ORIGINAL_PWD=$(pwd)
+readonly ORIGINAL_PWD
+# The directory path of this script file
+SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
+readonly SCRIPT_DIR
+# The path of this script file
+SCRIPT_NAME=$(basename "$0")
+readonly SCRIPT_NAME
+
+
+################################################################################
+# Include
+################################################################################
+
+# shellcheck source=libs/ana-gradle.sh
+source "$SCRIPT_DIR/libs/ana-gradle.sh"
+
+
+################################################################################
 # Functions
 ################################################################################
 
@@ -39,49 +62,14 @@ function echo_usage() {
     echo "Usage: $SCRIPT_NAME -d <output_dir> <main-project-path>" 1>&2
 }
 
-# Check task existence
-#
-# Arguments
-#   $1 - A task name. It can start with ':', such as ":sub-project:test". 
-#   $2 - The directory of the main project.
-#
-# Returns
-#   Returns 0 if specified task exists. Returns 1 otherwise.
-function task_exists() {
-    local -r task_name=${1#:}
-    local -r task_list_path=$2
-
-    set +e
-    grep -e "^$task_name$" "$task_list_path" &> /dev/null
-    result=$?
-    set -e
-
-    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
-        echo_err "Failed to reference the temporary file created: $task_list_path"
-        exit $result
-    fi
-
-    return $result
-}
-
 
 ################################################################################
 # Constant values
 ################################################################################
 
-# The current directory when this script started.
-ORIGINAL_PWD=$(pwd)
-readonly ORIGINAL_PWD
-# The directory path of this script file
-SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
-readonly SCRIPT_DIR
-# The path of this script file
-SCRIPT_NAME=$(basename "$0")
-readonly SCRIPT_NAME
-
 readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
-readonly REPORT_INDEX_TEMPLATE="$SCRIPT_DIR/report_index_template.html"
+readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
 
 
 ################################################################################
@@ -144,15 +132,20 @@ function remove_tmpfile {
 trap remove_tmpfile EXIT
 trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
 
+# the output of `gradle projects`
+tmp_project_list_path=$(mktemp)
+readonly tmp_project_list_path
+tmpfile_list+=( "$tmp_project_list_path" )
+
 # the output of `gradle tasks`
 tmp_tasks_path=$(mktemp)
 readonly tmp_tasks_path
 tmpfile_list+=( "$tmp_tasks_path" )
 
 # the list of HTML report
-tmp_report_list_path=$(mktemp)
-readonly tmp_report_list_path
-tmpfile_list+=( "$tmp_report_list_path" )
+tmp_summary_path=$(mktemp)
+readonly tmp_summary_path
+tmpfile_list+=( "$tmp_summary_path" )
 
 
 ################################################################################
@@ -161,6 +154,7 @@ tmpfile_list+=( "$tmp_report_list_path" )
 
 cd "$main_project_dir"
 
+readonly summary_path="$output_dir/summary.txt"
 readonly output_report_dir="$output_dir/test-report"
 readonly output_xml_dir="$output_dir/xml-report"
 
@@ -176,6 +170,9 @@ if [ -n "$output_xml_dir" ]; then
 fi
 
 
+# Get sub-projects list
+./gradlew projects < /dev/null >> "$tmp_project_list_path"
+
 # get task list
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
@@ -187,26 +184,31 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_name_esc=${project_name//:/__}
     test_result_xml_dir="$project_dir/build/test-results/test"
     test_result_html_dir="$project_dir/build/reports/tests/test"
-    test_result_xml_tar="$output_xml_dir/$project_name_esc.tgz"
-    test_result_html_dist_dir="$output_report_dir/$project_name_esc"
+    test_result_xml_tar="$output_xml_dir/${project_name_esc:-"root"}.tgz"
+    test_result_html_dist_dir="$output_report_dir/${project_name_esc:-"root"}"
     go_mod_path="$project_dir/go.mod"
+
+    # Even if the build.gradle file exists, 
+    # ignore it if it is not recognized as a sub project by the root project.
+    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+        continue
+    fi
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "$project_name" NO-TASK
+        echo "${project_name:-"root"}" NO-TASK >> "$tmp_summary_path"
     elif [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "$project_name" GO
+            echo "${project_name:-"root"}" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "$project_name" INTEGRATION-TEST
+            echo "${project_name:-"root"}" INTEGRATION-TEST >> "$tmp_summary_path"
         else
-            echo "$project_name" NO-TESTS
+            echo "${project_name:-"root"}" NO-TESTS >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
         row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
-        result_str=$(awk -F ' ' '{print $1}' <<< "$row_data")
-        echo "$project_name" "$row_data"
+        echo "${project_name:-"root"}" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
         (
@@ -216,10 +218,12 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
 
         # Collect the HTML test report
         cp -irp "$test_result_html_dir" "$test_result_html_dist_dir"
-        echo "<!-- $project_name --><li class=\"project_list__item project_list__item--$result_str\"><a href=\"./$project_name_esc/index.html\" target=\"main_frame\">$project_name</a></li>" >> "$tmp_report_list_path"
     fi
 done
 
+# Output the summary file
+sort "$tmp_summary_path" -o "$tmp_summary_path"
+cp "$tmp_summary_path" "$summary_path"
+
 # Output index page of HTML reports
-sort "$tmp_report_list_path" -o "$tmp_report_list_path"
-sed "/<!--LIST-->/ r $tmp_report_list_path" "$REPORT_INDEX_TEMPLATE" > "$output_report_dir/index.html"
+"$CREATE_REPORT_INDEX" "$tmp_summary_path" "$output_report_dir"
