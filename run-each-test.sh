@@ -65,7 +65,7 @@ while (( $# > 0 )); do
     case $1 in
         -)
             ((++argc))
-            argv=("${argv[@]}" "$1")
+            argv+=( "$1" )
             shift
             ;;
         -*)
@@ -79,7 +79,7 @@ while (( $# > 0 )); do
             ;;
         *)
             ((++argc))
-            argv=("${argv[@]}" "$1")
+            argv+=( "$1" )
             shift
             ;;
     esac
