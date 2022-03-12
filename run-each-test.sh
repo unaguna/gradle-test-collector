@@ -69,6 +69,7 @@ declare -a argv=()
 output_dir=
 rerun_tests_flg=1
 help_flg=1
+invalid_option_flg=1
 while (( $# > 0 )); do
     case $1 in
         -)
@@ -87,7 +88,10 @@ while (( $# > 0 )); do
                 # Ignore other arguments when displaying help
                 break
             else
-                usage_exit 1
+                # The option is illegal.
+                # In some cases, such as when --help is specified, illegal options may be ignored,
+                # so do not exit immediately, but only flag them.
+                invalid_option_flg=0
             fi
             shift
             ;;
@@ -106,6 +110,10 @@ fi
 if [ "$help_flg" -eq 0 ]; then
     echo_help
     exit 0
+fi
+
+if [ "$invalid_option_flg" -eq 0 ]; then
+    usage_exit 1
 fi
 
 if [ "$argc" -ne 1 ]; then
