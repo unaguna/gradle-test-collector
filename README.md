@@ -17,11 +17,12 @@
 1. Run the script `run-each-test.sh`
 
     ```shell
-    ./run-each-test.sh -d result ~/gradle-project
+    ./run-each-test.sh -d result --rerun-tests ~/gradle-project
     ```
 
     Each argument in the above example is treated as follows:
-    - **-d result** -- Directory where the results will be output. You can also specify an absolute path.
+    - **-d** result -- Directory where the results will be output. You can also specify an absolute path.
+    - **--rerun-tests** -- If it is specified, tests that have already been run are also rerun.
     - **~/gradle-project** -- The root directory of the gradle project.
 
 1. Check the results

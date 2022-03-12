@@ -36,7 +36,7 @@ source "$SCRIPT_DIR/libs/ana-gradle.sh"
 ################################################################################
 
 function usage_exit () {
-    echo "Usage:" "$(basename "$0") -d <output_directory> <main_project_directory>" 1>&2
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>" 1>&2
     exit "$1"
 }
 
@@ -61,6 +61,7 @@ readonly GET_SUMMARY_SCRIPT="$SCRIPT_DIR/test-summary.sh"
 declare -i argc=0
 declare -a argv=()
 output_dir=
+rerun_tests_flg=1
 while (( $# > 0 )); do
     case $1 in
         -)
@@ -72,6 +73,8 @@ while (( $# > 0 )); do
             if [[ "$1" == '-d' ]]; then
                 output_dir="$2"
                 shift
+            elif [[ "$1" == "--rerun-tests" ]]; then
+                rerun_tests_flg=0
             else
                 usage_exit 1
             fi
@@ -154,10 +157,12 @@ echo_info "Start '$task_name'"
 echo_info "Completed '$task_name'"
 
 # Disable UP-TO-DATE
-task_name="cleanTest"
-echo_info "Start '$task_name'"
-./gradlew "$task_name" < /dev/null
-echo_info "Completed '$task_name'"
+if [ "$rerun_tests_flg" -eq 0 ]; then
+    task_name="cleanTest"
+    echo_info "Start '$task_name'"
+    ./gradlew "$task_name" < /dev/null
+    echo_info "Completed '$task_name'"
+fi
 
 # Read each build.gradle and output dependencies tree of it.
 # cat ${ORIGINAL_PWD}/a.txt | while read -r project_file; do
