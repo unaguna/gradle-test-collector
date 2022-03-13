@@ -40,6 +40,20 @@ function usage_exit () {
     exit "$1"
 }
 
+function echo_help () {
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>"
+    echo ""
+    echo "Options"
+    echo "    -d <output_directory> :"
+    echo "         (Required) Path of the directory where the results will be output."
+    echo "    --rerun-tests :"
+    echo "         If it is specified, tests that have already been run are also rerun."
+    echo ""
+    echo "Arguments"
+    echo "    <main_project_directory> :"
+    echo "         (Required) Path of the root directory of the gradle project."
+}
+
 # Output an information
 #
 # Because stdout is used as output of gradlew in this script,
@@ -62,6 +76,8 @@ declare -i argc=0
 declare -a argv=()
 output_dir=
 rerun_tests_flg=1
+help_flg=1
+invalid_option_flg=1
 while (( $# > 0 )); do
     case $1 in
         -)
@@ -75,8 +91,15 @@ while (( $# > 0 )); do
                 shift
             elif [[ "$1" == "--rerun-tests" ]]; then
                 rerun_tests_flg=0
+            elif [[ "$1" == "--help" ]]; then
+                help_flg=0
+                # Ignore other arguments when displaying help
+                break
             else
-                usage_exit 1
+                # The option is illegal.
+                # In some cases, such as when --help is specified, illegal options may be ignored,
+                # so do not exit immediately, but only flag them.
+                invalid_option_flg=0
             fi
             shift
             ;;
@@ -90,6 +113,15 @@ done
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
     exit $exit_code
+fi
+
+if [ "$help_flg" -eq 0 ]; then
+    echo_help
+    exit 0
+fi
+
+if [ "$invalid_option_flg" -eq 0 ]; then
+    usage_exit 1
 fi
 
 if [ "$argc" -ne 1 ]; then
