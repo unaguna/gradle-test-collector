@@ -4,6 +4,7 @@
 """
 
 import argparse
+import datetime
 import chevron
 import os
 from typing import Optional
@@ -16,6 +17,12 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # The path of this script file
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
+
+# The name of this tool
+TOOL_NAME = "Gradle Test Collector"
+
+# The URL of this tool
+TOOL_URL = "https://github.com/unaguna/gradle-test-collector"
 
 
 def dfor(value, default):
@@ -225,15 +232,21 @@ if __name__ == "__main__":
     output_top_path = os.path.join(args.output_dir_path, "top.html")
 
     summary_list = load_summary(args.summary_path)
+    data = {
+        "tool_name": TOOL_NAME,
+        "tool_url": TOOL_URL,
+        "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
+        "project_table": summary_list,
+    }
 
     with open(args.template_index_path, "r") as f:
-        output_text = chevron.render(f, {"project_table": summary_list})
+        output_text = chevron.render(f, data)
 
     with open(output_index_path, "w") as f:
         print(output_text, file=f)
 
     with open(args.template_top_path, "r") as f:
-        output_text = chevron.render(f, {"project_table": summary_list})
+        output_text = chevron.render(f, data)
 
     with open(output_top_path, "w") as f:
         print(output_text, file=f)

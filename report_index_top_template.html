@@ -59,6 +59,13 @@
             width: 4em;
             text-align: right;
         }
+        #footer, #footer a {
+            color: #a0a0a0;
+        }
+        #footer {
+            font-size: 0.8rem;
+            white-space: nowrap;
+        }
     </style>
     <script type="text/javascript">
         window.onload = function() {
@@ -123,5 +130,10 @@
             {{/project_table}}
         </tbody>
     </table>
+    <div id="footer">
+        Collected by
+        {{#tool_url}}<a href="{{tool_url}}" target="_blank">{{/tool_url}}{{tool_name}}{{#tool_url}}</a>{{/tool_url}}
+        at {{datetime_str}}
+    </div>
 </body>
 </html>
