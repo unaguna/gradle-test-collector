@@ -41,17 +41,17 @@ function usage_exit () {
 }
 
 function echo_help () {
-    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>" 1>&2
-    echo "" 1>&2
-    echo "Options" 1>&2
-    echo "    -d <output_directory> :" 1>&2
-    echo "         (Required) Path of the directory where the results will be output." 1>&2
-    echo "    --rerun-tests :" 1>&2
-    echo "         If it is specified, tests that have already been run are also rerun." 1>&2
-    echo "" 1>&2
-    echo "Arguments" 1>&2
-    echo "    <main_project_directory> :" 1>&2
-    echo "         (Required) Path of the root directory of the gradle project." 1>&2
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>"
+    echo ""
+    echo "Options"
+    echo "    -d <output_directory> :"
+    echo "         (Required) Path of the directory where the results will be output."
+    echo "    --rerun-tests :"
+    echo "         If it is specified, tests that have already been run are also rerun."
+    echo ""
+    echo "Arguments"
+    echo "    <main_project_directory> :"
+    echo "         (Required) Path of the root directory of the gradle project."
 }
 
 # Output an information
