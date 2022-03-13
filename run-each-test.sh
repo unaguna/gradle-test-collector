@@ -7,6 +7,7 @@
 set -eu
 set -o pipefail
 
+set -C
 
 ################################################################################
 # Script information
@@ -185,7 +186,7 @@ fi
 # Get sub-projects list
 task_name="projects"
 echo_info "Start '$task_name'"
-./gradlew "$task_name" < /dev/null > "$tmp_project_list_path"
+./gradlew "$task_name" < /dev/null >> "$tmp_project_list_path"
 echo_info "Completed '$task_name'"
 
 # Disable UP-TO-DATE
