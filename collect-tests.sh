@@ -37,18 +37,21 @@ source "$SCRIPT_DIR/libs/ana-gradle.sh"
 ################################################################################
 
 function usage_exit () {
-    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>" 1>&2
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests|--skip-tests] <main_project_directory>" 1>&2
     exit "$1"
 }
 
 function echo_help () {
-    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests] <main_project_directory>"
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests|--skip-tests] <main_project_directory>"
     echo ""
     echo "Options"
     echo "    -d <output_directory> :"
     echo "         (Required) Path of the directory where the results will be output."
     echo "    --rerun-tests :"
     echo "         If it is specified, tests that have already been run are also rerun."
+    echo "    --skip-tests :"
+    echo "         If it is specified, tests are not ran and the results of tests that"
+    echo "         have already been run are collected."
     echo ""
     echo "Arguments"
     echo "    <main_project_directory> :"
@@ -87,6 +90,7 @@ declare -i argc=0
 declare -a argv=()
 output_dir=
 rerun_tests_flg=1
+skip_tests_flg=1
 help_flg=1
 invalid_option_flg=1
 while (( $# > 0 )); do
@@ -102,6 +106,8 @@ while (( $# > 0 )); do
                 shift
             elif [[ "$1" == "--rerun-tests" ]]; then
                 rerun_tests_flg=0
+            elif [[ "$1" == "--skip-tests" ]]; then
+                skip_tests_flg=0
             elif [[ "$1" == "--help" ]]; then
                 help_flg=0
                 # Ignore other arguments when displaying help
@@ -136,6 +142,10 @@ if [ "$invalid_option_flg" -eq 0 ]; then
 fi
 
 if [ "$argc" -ne 1 ]; then
+    usage_exit 1
+fi
+
+if [ "$rerun_tests_flg" -eq 0 ] && [ "$skip_tests_flg" -eq 0 ]; then
     usage_exit 1
 fi
 
@@ -227,32 +237,33 @@ if [ "$rerun_tests_flg" -eq 0 ]; then
 fi
 
 # Read each build.gradle and run each test.
-find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
-    project_dir=$(dirname "$project_file")
-    project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
-    project_name_esc=${project_name//:/__}
-    task_name="${project_name}:test"
+if [ "$skip_tests_flg" -ne 0 ]; then
+    find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
+        project_dir=$(dirname "$project_file")
+        project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
+        project_name_esc=${project_name//:/__}
+        task_name="${project_name}:test"
 
-    # Even if the build.gradle file exists, 
-    # ignore it if it is not recognized as a sub project by the root project.
-    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
-        continue
-    fi
+        # Even if the build.gradle file exists, 
+        # ignore it if it is not recognized as a sub project by the root project.
+        if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+            continue
+        fi
 
-    # Decide filepath where output.
-    output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
+        # Decide filepath where output.
+        output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
 
-    echo_info "Start '$task_name'" 
+        echo_info "Start '$task_name'" 
 
-    set +e
-    # To solve the below problem, specify the redirect /dev/null to stdin:
-    # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
-    ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
-    set -e
+        set +e
+        # To solve the below problem, specify the redirect /dev/null to stdin:
+        # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
+        ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
+        set -e
 
-    echo_info "Completed '$task_name'" 
-done
-
+        echo_info "Completed '$task_name'" 
+    done
+fi
 
 # get task list
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
