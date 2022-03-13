@@ -177,7 +177,7 @@ fi
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
 
-# Read each build.gradle and output dependencies tree of it.
+# Read each build.gradle and copy test reports.
 find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_dir=$(dirname "$project_file")
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")

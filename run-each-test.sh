@@ -197,8 +197,7 @@ if [ "$rerun_tests_flg" -eq 0 ]; then
     echo_info "Completed '$task_name'"
 fi
 
-# Read each build.gradle and output dependencies tree of it.
-# cat ${ORIGINAL_PWD}/a.txt | while read -r project_file; do
+# Read each build.gradle and run each test.
 find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_dir=$(dirname "$project_file")
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
