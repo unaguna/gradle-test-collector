@@ -294,8 +294,10 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
             echo "${project_name:-"root"}" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
             echo "${project_name:-"root"}" INTEGRATION-TEST >> "$tmp_summary_path"
-        else
+        elif [ "$skip_tests_flg" -ne 0 ]; then
             echo "${project_name:-"root"}" NO-TESTS >> "$tmp_summary_path"
+        else
+            echo "${project_name:-"root"}" RESULT-NOT-FOUND >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
