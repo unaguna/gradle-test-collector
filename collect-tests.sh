@@ -74,6 +74,21 @@ function echo_err() {
     echo "$SCRIPT_NAME: " "$@" >&2
 }
 
+# Output the name of the file to be used as the output destination for stdout of gradle task.
+#
+# Arguments
+#   $1 - sub-project name
+#
+# Standard Output
+#   the filename, not filepath
+function stdout_filename() {
+    local -r project_name=$1
+
+    local -r project_name_esc=${project_name//:/__}
+
+    echo "${project_name_esc:-"root"}.txt"
+}
+
 ################################################################################
 # Constant values
 ################################################################################
@@ -241,7 +256,6 @@ if [ "$skip_tests_flg" -ne 0 ]; then
     find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
         project_dir=$(dirname "$project_file")
         project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
-        project_name_esc=${project_name//:/__}
         task_name="${project_name}:test"
 
         # Even if the build.gradle file exists, 
@@ -251,7 +265,7 @@ if [ "$skip_tests_flg" -ne 0 ]; then
         fi
 
         # Decide filepath where output.
-        output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
+        output_file="$stdout_dir/$(stdout_filename "$project_name")"
 
         echo_info "Start '$task_name'" 
 
