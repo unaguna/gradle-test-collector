@@ -303,7 +303,10 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
         echo "${project_name:-"root"}" NO-TASK >> "$tmp_summary_path"
-    elif [ ! -e "$test_result_xml_dir" ]; then
+        continue
+    fi
+
+    if [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
             echo "${project_name:-"root"}" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
