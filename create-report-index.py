@@ -148,21 +148,21 @@ class Summary:
         line_parts = line.split()
 
         project_name = line_parts[0]
-        result_str = line_parts[1]
-        if len(line_parts) > 2:
-            passed = int(line_parts[2])
+        result_str = line_parts[2]
+        if len(line_parts) > 3:
+            passed = int(line_parts[3])
         else:
             passed = None
-        if len(line_parts) > 3:
-            failures = int(line_parts[3])
+        if len(line_parts) > 4:
+            failures = int(line_parts[4])
         else:
             failures = None
-        if len(line_parts) > 4:
-            errors = int(line_parts[4])
+        if len(line_parts) > 5:
+            errors = int(line_parts[5])
         else:
             errors = None
-        if len(line_parts) > 5:
-            skipped = int(line_parts[5])
+        if len(line_parts) > 6:
+            skipped = int(line_parts[6])
         else:
             skipped = None
 
