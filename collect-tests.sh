@@ -308,7 +308,11 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     fi
 
     # get the result of ./gradlew test
-    build_status=$(build_status "$stdout_file")
+    if [ "$skip_tests_flg" -ne 0 ]; then
+        build_status=$(build_status "$stdout_file")
+    else
+        build_status="SKIPPED"
+    fi
 
     if [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
