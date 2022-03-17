@@ -243,6 +243,9 @@ echo_info "Start '$task_name'"
 ./gradlew "$task_name" < /dev/null >> "$tmp_project_list_path"
 echo_info "Completed '$task_name'"
 
+# get task list
+./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
+
 # Disable UP-TO-DATE
 if [ "$rerun_tests_flg" -eq 0 ]; then
     task_name="cleanTest"
@@ -264,6 +267,12 @@ if [ "$skip_tests_flg" -ne 0 ]; then
             continue
         fi
 
+        # Even if the build.gradle file exists, 
+        # ignore it if the test task of this module does not exists
+        if ! task_exists "$project_name:test" "$tmp_tasks_path"; then
+            continue
+        fi
+
         # Decide filepath where output.
         output_file="$stdout_dir/$(stdout_filename "$project_name")"
 
@@ -278,10 +287,6 @@ if [ "$skip_tests_flg" -ne 0 ]; then
         echo_info "Completed '$task_name'" 
     done
 fi
-
-# get task list
-./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
-
 
 # Read each build.gradle and copy test reports.
 find . -type f -name 'build.gradle*' -print | while read -r project_file; do
