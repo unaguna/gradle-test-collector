@@ -51,3 +51,27 @@ function task_exists() {
 
     return $result
 }
+
+# Get build status from the stdout file
+#
+# Arguments
+#   $1 - the path of output of gradle
+#
+# Returns
+#   Returns 0 if the status is found. Returns 1 otherwise.
+function build_status() {
+    local -r stdout_path=$1
+    
+    set +e
+    status=$(grep BUILD "$stdout_path" | tail -n 1 | awk '{print $2}')
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to read the file: $task_list_path"
+        exit $result
+    fi
+
+    echo "$status"
+    return $result
+}

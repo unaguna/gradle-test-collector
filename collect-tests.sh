@@ -74,6 +74,21 @@ function echo_err() {
     echo "$SCRIPT_NAME: " "$@" >&2
 }
 
+# Output the name of the file to be used as the output destination for stdout of gradle task.
+#
+# Arguments
+#   $1 - sub-project name
+#
+# Standard Output
+#   the filename, not filepath
+function stdout_filename() {
+    local -r project_name=$1
+
+    local -r project_name_esc=${project_name//:/__}
+
+    echo "${project_name_esc:-"root"}.txt"
+}
+
 ################################################################################
 # Constant values
 ################################################################################
@@ -241,7 +256,6 @@ if [ "$skip_tests_flg" -ne 0 ]; then
     find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
         project_dir=$(dirname "$project_file")
         project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
-        project_name_esc=${project_name//:/__}
         task_name="${project_name}:test"
 
         # Even if the build.gradle file exists, 
@@ -251,7 +265,7 @@ if [ "$skip_tests_flg" -ne 0 ]; then
         fi
 
         # Decide filepath where output.
-        output_file="$stdout_dir/${project_name_esc:-"root"}.txt"
+        output_file="$stdout_dir/$(stdout_filename "$project_name")"
 
         echo_info "Start '$task_name'" 
 
@@ -274,6 +288,7 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_dir=$(dirname "$project_file")
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
     project_name_esc=${project_name//:/__}
+    stdout_file="$stdout_dir/$(stdout_filename "$project_name")"
     test_result_xml_dir="$project_dir/build/test-results/test"
     test_result_html_dir="$project_dir/build/reports/tests/test"
     test_result_xml_tar="$output_xml_dir/${project_name_esc:-"root"}.tgz"
@@ -288,21 +303,31 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "${project_name:-"root"}" NO-TASK >> "$tmp_summary_path"
-    elif [ ! -e "$test_result_xml_dir" ]; then
+        echo "${project_name:-"root"}" NO-TASK NO-TASK >> "$tmp_summary_path"
+        continue
+    fi
+
+    # get the result of ./gradlew test
+    if [ "$skip_tests_flg" -ne 0 ]; then
+        build_status=$(build_status "$stdout_file")
+    else
+        build_status="SKIPPED"
+    fi
+
+    if [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "${project_name:-"root"}" GO >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "${project_name:-"root"}" INTEGRATION-TEST >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" INTEGRATION-TEST >> "$tmp_summary_path"
         elif [ "$skip_tests_flg" -ne 0 ]; then
-            echo "${project_name:-"root"}" NO-TESTS >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" NO-TESTS >> "$tmp_summary_path"
         else
-            echo "${project_name:-"root"}" RESULT-NOT-FOUND >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" RESULT-NOT-FOUND >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
         row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
-        echo "${project_name:-"root"}" "$row_data" >> "$tmp_summary_path"
+        echo "${project_name:-"root"}" "$build_status" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
         (
