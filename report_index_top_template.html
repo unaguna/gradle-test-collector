@@ -19,6 +19,10 @@
             color: #008000;
             background-color: #bbd9bb;
         }
+        .summary_table__record--ERROR {
+            color: #b60808;
+            background-color: #ecdada;
+        }
         .summary_table__record--failed {
             color: #b60808;
             background-color: #ecdada;
@@ -39,7 +43,7 @@
             color: #444;
             background-color: #ccc;
         }
-        .summary_table__record--RESULT-NOT-FOUND .summary_table__result_cell {
+        .summary_table__record--RESULT-NOT-FOUND .summary_table__status_cell {
             font-size: 0.6em;
         }
         .summary_table__record--GO {
@@ -57,7 +61,7 @@
         .summary_table__project_name_cell a:hover {
             text-decoration: underline;
         }
-        .summary_table__result_cell {
+        .summary_table__status_cell {
             padding: 0 0.25em;
             width: 6em;
         }
@@ -90,7 +94,7 @@
         <thead>
             <tr>
                 <th>Sub-project</th>
-                <th>result</th>
+                <th>Status</th>
                 <th>passed</th>
                 <th>failures</th>
                 <th>errors</th>
@@ -101,7 +105,7 @@
             {{#project_table}}
             <tr class="
                     summary_table__record
-                    summary_table__record--{{result_str}}
+                    summary_table__record--{{status_str}}
                     {{#is_effective}}
                     summary_table__record--effective
                     {{/is_effective}}
@@ -118,8 +122,8 @@
                     data-href="./{{project_name_esc}}/index.html">
                     {{project_name}}
                 </td>
-                <td class="summary_table__result_cell">
-                    {{result_str}}
+                <td class="summary_table__status_cell">
+                    {{status_str}}
                 </td>
                 <td class="summary_table__numeric_cell">
                     {{passed}}
