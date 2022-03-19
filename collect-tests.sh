@@ -93,7 +93,7 @@ function stdout_filename() {
 #
 # Arguments
 #   $1: a string
-#   $2: the path of the project list
+#   $2: the path of the project table
 #
 # Returns
 #   Returns 0 if the specified string is a name of sub-project.
@@ -102,8 +102,13 @@ function is_sub_project () {
     local -r sub_project_name=${1#:}
     local -r project_list_path=$2
 
+    # The root project is not sub-project
+    if [ -z "$sub_project_name" ]; then
+        return 1
+    fi
+
     set +e
-    grep -e "^:${sub_project_name}$" "$project_list_path" &> /dev/null
+    awk '{print $1}' "$project_list_path" | grep -e "^:${sub_project_name}$" &> /dev/null
     result=$?
     set -e
 
@@ -122,6 +127,8 @@ function is_sub_project () {
 readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
 readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
+
+readonly INIT_GRADLE="$SCRIPT_DIR/init.gradle"
 
 readonly PROJECT_LIST_SED="$SCRIPT_DIR/project-list.sed"
 
@@ -227,7 +234,7 @@ trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
 # the output of `gradle projects`
 tmp_project_list_path=$(mktemp)
 readonly tmp_project_list_path
-tmpfile_list+=( "$tmp_project_list_path" )
+# tmpfile_list+=( "$tmp_project_list_path" )
 
 # the output of `gradle tasks`
 tmp_tasks_path=$(mktemp)
@@ -267,7 +274,7 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-./gradlew projects < /dev/null | sed -f "$PROJECT_LIST_SED" >> "$tmp_project_list_path"
+./gradlew projectlist --init-script "$INIT_GRADLE" < /dev/null | sed -f "$PROJECT_LIST_SED" >> "$tmp_project_list_path"
 sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list

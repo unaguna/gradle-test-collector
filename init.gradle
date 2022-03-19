@@ -1,0 +1,9 @@
+rootProject {
+    task 'projectlist' {
+        doFirst {
+            allprojects {
+                println "Prj ${project.path} ${projectDir.absolutePath}"
+            }
+        }
+    }
+}
