@@ -71,7 +71,7 @@ function echo_info () {
 # Because stdout is used as output of gradlew in this script,
 # any messages should be output to stderr.
 function echo_err() {
-    echo "$SCRIPT_NAME: " "$@" >&2
+    echo "$SCRIPT_NAME: $*" >&2
 }
 
 # Output the name of the file to be used as the output destination for stdout of gradle task.
