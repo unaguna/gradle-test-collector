@@ -63,7 +63,7 @@ function echo_help () {
 # Because stdout is used as output of gradlew in this script,
 # any messages should be output to stderr.
 function echo_info () {
-    echo "$SCRIPT_NAME: " "$@" >&2
+    echo "$SCRIPT_NAME: $*" >&2
 }
 
 # Output an error
@@ -238,24 +238,23 @@ if [ -n "$output_xml_dir" ]; then
 fi
 
 # Get sub-projects list
-task_name="projects"
-echo_info "Start '$task_name'"
-./gradlew "$task_name" < /dev/null >> "$tmp_project_list_path"
-echo_info "Completed '$task_name'"
+echo_info "Loading project list"
+./gradlew projects < /dev/null >> "$tmp_project_list_path"
 
 # get task list
+echo_info "Loading task list"
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
 # Disable UP-TO-DATE
 if [ "$rerun_tests_flg" -eq 0 ]; then
-    task_name="cleanTest"
-    echo_info "Start '$task_name'"
-    ./gradlew "$task_name" < /dev/null
-    echo_info "Completed '$task_name'"
+    echo_info "Deleting the cache of test result"
+    ./gradlew cleanTest < /dev/null >> /dev/null
 fi
 
 # Read each build.gradle and run each test.
-if [ "$skip_tests_flg" -ne 0 ]; then
+if [ "$skip_tests_flg" -eq 0 ]; then
+    echo_info "The tests are skipped"
+else
     find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
         project_dir=$(dirname "$project_file")
         project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
@@ -270,25 +269,24 @@ if [ "$skip_tests_flg" -ne 0 ]; then
         # Even if the build.gradle file exists, 
         # ignore it if the test task of this module does not exists
         if ! task_exists "$project_name:test" "$tmp_tasks_path"; then
+            echo_info "'$task_name' is skipped; the project '$project_name' doesn't have a task 'test'."
             continue
         fi
 
         # Decide filepath where output.
         output_file="$stdout_dir/$(stdout_filename "$project_name")"
 
-        echo_info "Start '$task_name'" 
-
+        echo_info "Running test '$task_name'" 
         set +e
         # To solve the below problem, specify the redirect /dev/null to stdin:
         # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
         ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
         set -e
-
-        echo_info "Completed '$task_name'" 
     done
 fi
 
 # Read each build.gradle and copy test reports.
+echo_info "Collecting the test results" 
 find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     project_dir=$(dirname "$project_file")
     project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
