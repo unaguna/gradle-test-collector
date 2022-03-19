@@ -89,6 +89,32 @@ function stdout_filename() {
     echo "${project_name_esc:-"root"}.txt"
 }
 
+# Check if the specified string is a name of sub-project
+#
+# Arguments
+#   $1: a string
+#   $2: the path of the project list
+#
+# Returns
+#   Returns 0 if the specified string is a name of sub-project.
+#   Returns 1 otherwise.
+function is_sub_project () {
+    local -r sub_project_name=${1#:}
+    local -r project_list_path=$2
+
+    set +e
+    grep -e "^:${sub_project_name}$" "$project_list_path" &> /dev/null
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to reference the temporary file created: $project_list_path"
+        exit $result
+    fi
+
+    return $result
+}
+
 ################################################################################
 # Constant values
 ################################################################################
@@ -96,6 +122,8 @@ function stdout_filename() {
 readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
 readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
+
+readonly PROJECT_LIST_SED="$SCRIPT_DIR/project-list.sed"
 
 
 ################################################################################
@@ -239,7 +267,8 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-./gradlew projects < /dev/null >> "$tmp_project_list_path"
+./gradlew projects < /dev/null | sed -f "$PROJECT_LIST_SED" >> "$tmp_project_list_path"
+sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list
 echo_info "Loading task list"
