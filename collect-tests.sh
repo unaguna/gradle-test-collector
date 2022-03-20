@@ -291,14 +291,11 @@ if [ "$skip_tests_flg" -eq 0 ]; then
 else
     while read -r project_row; do
         project_name=$(awk '{print $1}' <<< "$project_row")
+        if [ "$project_name" == ":" ]; then
+            project_name=""
+        fi
         project_dir=$(awk '{print $2}' <<< "$project_row")
         task_name="${project_name}:test"
-
-        # Ignore root
-        # TODO: include root project
-        if [ "$project_name" == ":" ]; then
-            continue
-        fi
 
         # Even if the build.gradle file exists, 
         # ignore it if the test task of this module does not exists
@@ -323,6 +320,9 @@ fi
 echo_info "Collecting the test results" 
 while read -r project_row; do
     project_name=$(awk '{print $1}' <<< "$project_row")
+    if [ "$project_name" == ":" ]; then
+        project_name=""
+    fi
     project_dir=$(awk '{print $2}' <<< "$project_row")
     project_name_esc=${project_name//:/__}
     stdout_file="$stdout_dir/$(stdout_filename "$project_name")"
@@ -332,11 +332,6 @@ while read -r project_row; do
     test_result_html_dist_dir="$output_report_dir/${project_name_esc:-"root"}"
     go_mod_path="$project_dir/go.mod"
 
-    # Ignore root
-    # TODO: include root project
-    if [ "$project_name" == ":" ]; then
-        continue
-    fi
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
