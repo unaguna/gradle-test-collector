@@ -23,7 +23,9 @@
     Each argument in the above example is treated as follows:
     - **-d** result -- Directory where the results will be output. You can also specify an absolute path.
     - **--rerun-tests** -- If it is specified, tests that have already been run are also rerun.
-    - **~/gradle-project** -- The root directory of the gradle project.
+    - ~/gradle-project -- The root directory of the gradle project.
+
+    If you want to know about other options, please run `./collect-tests.sh --help`
 
 1. Check the results
 
