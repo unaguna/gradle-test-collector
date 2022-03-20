@@ -6,8 +6,9 @@
 ## Execution Environment
 
 - It runs with bash (Not sure if it works with other shells.)
-- It requires python >=3.9
-    To verify it, run `python3 --version` and check it's version.
+- It requires python >=3.9. To verify it, run `python3 --version` and check it's version.
+  - In addition, the following libraries must be installed
+    - [chevron](https://pypi.org/project/chevron/)
 
 
 ## Usage Example
