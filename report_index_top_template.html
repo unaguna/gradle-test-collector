@@ -154,6 +154,7 @@
                         <th class="summary_table__numeric_cell">failures</th>
                         <th class="summary_table__numeric_cell">errors</th>
                         <th class="summary_table__numeric_cell">skipped</th>
+                        <th class="summary_table__numeric_cell">total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -191,6 +192,9 @@
                         </td>
                         <td class="summary_table__numeric_cell">
                             {{skipped}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{tests}}
                         </td>
                     </tr>
                     {{/project_table}}
