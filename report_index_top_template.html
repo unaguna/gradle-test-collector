@@ -15,6 +15,9 @@
         .summary_table__table tr:hover {
             border-bottom: black 3px dashed;
         }
+        .summary_table__record--hide {
+            display: none;
+        }
         .summary_table__record--passed {
             color: #008000;
             background-color: #bbd9bb;
@@ -77,74 +80,161 @@
             font-size: 0.8rem;
             white-space: nowrap;
         }
+        .sidebar__area {
+            margin-left: 1rem;
+        }
+        .sidebar__area h2 {
+            font-size: medium;
+            font-weight: bold;
+            margin: 1em 0 0 0;
+        }
+        ul.filter__status_list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        ul.filter__status_list li {
+            white-space: nowrap;
+        }
     </style>
     <script type="text/javascript">
         window.onload = function() {
+            // Add onclick event to block elements
             for(let e of document.getElementsByClassName("clickable")) {
                 e.onclick = function() {
                     window.location = e.dataset.href;
                 };
+            }
+
+            // Add onchange event to the checkboxes for filtering
+            for(const e of document.getElementsByClassName("filter__status_checkbox")) {
+                const rowClassName = `summary_table__record--${e.dataset.condition}`;
+                e.onclick = function(event) {
+                    const visible = e.checked;
+                    for(let row of document.getElementsByClassName(rowClassName)) {
+                        if(visible) {
+                            row.classList.remove("summary_table__record--hide");
+                        } else {
+                            row.classList.add("summary_table__record--hide");
+                        }
+                    }
+                };
+                // To prevent the previous state from being carried over when reloading.
+                e.checked = true;
             }
         };
     </script>
     <title>Test Summary</title>
 </head>
 <body>
-    <table class="summary_table__table">
-        <thead>
-            <tr>
-                <th>Sub-project</th>
-                <th>Status</th>
-                <th>passed</th>
-                <th>failures</th>
-                <th>errors</th>
-                <th>skipped</th>
-            </tr>
-        </thead>
-        <tbody>
-            {{#project_table}}
-            <tr class="
-                    summary_table__record
-                    summary_table__record--{{status_str}}
-                    {{#is_effective}}
-                    summary_table__record--effective
-                    {{/is_effective}}
-                    {{^is_effective}}
-                    summary_table__record--not_effective
-                    {{/is_effective}}
-                ">
-                <td class="
-                        summary_table__project_name_cell
-                        {{#is_effective}}
-                        clickable
-                        {{/is_effective}}
-                    "
-                    data-href="./{{project_name_esc}}/index.html">
-                    {{project_name}}
-                </td>
-                <td class="summary_table__status_cell">
-                    {{status_str}}
-                </td>
-                <td class="summary_table__numeric_cell">
-                    {{passed}}
-                </td>
-                <td class="summary_table__numeric_cell">
-                    {{failures}}
-                </td>
-                <td class="summary_table__numeric_cell">
-                    {{errors}}
-                </td>
-                <td class="summary_table__numeric_cell">
-                    {{skipped}}
-                </td>
-            </tr>
-            {{/project_table}}
-        </tbody>
-    </table>
-    <div id="footer">
-        Collected by
-        {{#tool_url}}<a href="{{tool_url}}" target="_blank">{{/tool_url}}{{tool_name}}{{#tool_url}}</a>{{/tool_url}}
-        at {{datetime_str}}
+    <div style="display: flex;">
+        <div>
+            <table class="summary_table__table">
+                <thead>
+                    <tr>
+                        <th>Sub-project</th>
+                        <th>Status</th>
+                        <th>passed</th>
+                        <th>failures</th>
+                        <th>errors</th>
+                        <th>skipped</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {{#project_table}}
+                    <tr class="
+                            summary_table__record
+                            summary_table__record--{{status_str}}
+                            {{#is_effective}}
+                            summary_table__record--effective
+                            {{/is_effective}}
+                            {{^is_effective}}
+                            summary_table__record--not_effective
+                            {{/is_effective}}
+                        ">
+                        <td class="
+                                summary_table__project_name_cell
+                                {{#is_effective}}
+                                clickable
+                                {{/is_effective}}
+                            "
+                            data-href="./{{project_name_esc}}/index.html">
+                            {{project_name}}
+                        </td>
+                        <td class="summary_table__status_cell">
+                            {{status_str}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{passed}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{failures}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{errors}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{skipped}}
+                        </td>
+                    </tr>
+                    {{/project_table}}
+                </tbody>
+            </table>
+            <div id="footer">
+                Collected by
+                {{#tool_url}}<a href="{{tool_url}}" target="_blank">{{/tool_url}}{{tool_name}}{{#tool_url}}</a>{{/tool_url}}
+                at {{datetime_str}}
+            </div>
+        </div>
+        <div class="sidebar__area">
+            <div class="sidebar__filter filter__container">
+                <h2>Filter</h2>
+                <ul class="filter__status_list">
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="passed" checked>
+                            passed
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="ignored" checked>
+                            ignored
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="failed" checked>
+                            failed
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked>
+                            NO-TESTS
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked>
+                            NO-TASK
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="GO" checked>
+                            GO
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="RESULT-NOT-FOUND" checked>
+                            RESULT-NOT-FOUND
+                        </label>
+                    </li>
+                </ul>
+            </div>
+        </div>
     </div>
 </body>
 </html>
