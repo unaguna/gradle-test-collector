@@ -4,6 +4,7 @@
 """
 
 import argparse
+import collections
 import datetime
 import chevron
 import os
@@ -272,6 +273,9 @@ if __name__ == "__main__":
         "tool_url": TOOL_URL,
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
+        "status_frequency": collections.Counter(
+            map(lambda s: s.status_str, summary_list)
+        ),
     }
 
     with open(args.template_index_path, "r") as f:
