@@ -96,6 +96,9 @@
         ul.filter__status_list li {
             white-space: nowrap;
         }
+        .filter__status_list input:disabled ~ span {
+            color: #bdbcbc;
+        }
     </style>
     <script type="text/javascript">
         window.onload = function() {
@@ -192,44 +195,79 @@
                 <ul class="filter__status_list">
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="passed" checked>
-                            passed
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="passed" checked
+                            {{^status_frequency.passed}}
+                            disabled
+                            {{/status_frequency.passed}}
+                            >
+                            <span>passed</span>
+                            <span>({{status_frequency.passed}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="ignored" checked>
-                            ignored
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="ignored" checked
+                            {{^status_frequency.ignored}}
+                            disabled
+                            {{/status_frequency.ignored}}
+                            >
+                            <span>ignored</span>
+                            <span>({{status_frequency.ignored}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="failed" checked>
-                            failed
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="failed" checked
+                            {{^status_frequency.failed}}
+                            disabled
+                            {{/status_frequency.failed}}
+                            >
+                            <span>failed</span>
+                            <span>({{status_frequency.failed}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked>
-                            NO-TESTS
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked
+                            {{^status_frequency.NO-TESTS}}
+                            disabled
+                            {{/status_frequency.NO-TESTS}}
+                            >
+                            <span>NO-TESTS</span>
+                            <span>({{status_frequency.NO-TESTS}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked>
-                            NO-TASK
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked
+                            {{^status_frequency.NO-TASK}}
+                            disabled
+                            {{/status_frequency.NO-TASK}}
+                            >
+                            <span>NO-TASK</span>
+                            <span>({{status_frequency.NO-TASK}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="GO" checked>
-                            GO
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="GO" checked
+                            {{^status_frequency.GO}}
+                            disabled
+                            {{/status_frequency.GO}}
+                            >
+                            <span>GO</span>
+                            <span>({{status_frequency.GO}})</span>
                         </label>
                     </li>
                     <li>
                         <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="RESULT-NOT-FOUND" checked>
-                            RESULT-NOT-FOUND
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="RESULT-NOT-FOUND" checked
+                            {{^status_frequency.RESULT-NOT-FOUND}}
+                            disabled
+                            {{/status_frequency.RESULT-NOT-FOUND}}
+                            >
+                            <span>RESULT-NOT-FOUND</span>
+                            <span>({{status_frequency.RESULT-NOT-FOUND}})</span>
                         </label>
                     </li>
                 </ul>
