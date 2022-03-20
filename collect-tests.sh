@@ -89,6 +89,37 @@ function stdout_filename() {
     echo "${project_name_esc:-"root"}.txt"
 }
 
+# Check if the specified string is a name of sub-project
+#
+# Arguments
+#   $1: a string
+#   $2: the path of the project table
+#
+# Returns
+#   Returns 0 if the specified string is a name of sub-project.
+#   Returns 1 otherwise.
+function is_sub_project () {
+    local -r sub_project_name=${1#:}
+    local -r project_list_path=$2
+
+    # The root project is not sub-project
+    if [ -z "$sub_project_name" ]; then
+        return 1
+    fi
+
+    set +e
+    awk '{print $1}' "$project_list_path" | grep -e "^:${sub_project_name}$" &> /dev/null
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to reference the temporary file created: $project_list_path"
+        exit $result
+    fi
+
+    return $result
+}
+
 ################################################################################
 # Constant values
 ################################################################################
@@ -96,6 +127,8 @@ function stdout_filename() {
 readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
 
 readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
+
+readonly INIT_GRADLE="$SCRIPT_DIR/init.gradle"
 
 
 ################################################################################
@@ -199,7 +232,7 @@ trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
 # the output of `gradle projects`
 tmp_project_list_path=$(mktemp)
 readonly tmp_project_list_path
-tmpfile_list+=( "$tmp_project_list_path" )
+# tmpfile_list+=( "$tmp_project_list_path" )
 
 # the output of `gradle tasks`
 tmp_tasks_path=$(mktemp)
@@ -239,7 +272,8 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-./gradlew projects < /dev/null >> "$tmp_project_list_path"
+./gradlew projectlist --init-script "$INIT_GRADLE" "-Ptestcollector.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
+sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list
 echo_info "Loading task list"
@@ -255,16 +289,13 @@ fi
 if [ "$skip_tests_flg" -eq 0 ]; then
     echo_info "The tests are skipped"
 else
-    find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
-        project_dir=$(dirname "$project_file")
-        project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
-        task_name="${project_name}:test"
-
-        # Even if the build.gradle file exists, 
-        # ignore it if it is not recognized as a sub project by the root project.
-        if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
-            continue
+    while read -r project_row; do
+        project_name=$(awk '{print $1}' <<< "$project_row")
+        if [ "$project_name" == ":" ]; then
+            project_name=""
         fi
+        project_dir=$(awk '{print $2}' <<< "$project_row")
+        task_name="${project_name}:test"
 
         # Even if the build.gradle file exists, 
         # ignore it if the test task of this module does not exists
@@ -282,14 +313,17 @@ else
         # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
         ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
         set -e
-    done
+    done < "$tmp_project_list_path"
 fi
 
 # Read each build.gradle and copy test reports.
 echo_info "Collecting the test results" 
-find . -type f -name 'build.gradle*' -print | while read -r project_file; do
-    project_dir=$(dirname "$project_file")
-    project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
+while read -r project_row; do
+    project_name=$(awk '{print $1}' <<< "$project_row")
+    if [ "$project_name" == ":" ]; then
+        project_name=""
+    fi
+    project_dir=$(awk '{print $2}' <<< "$project_row")
     project_name_esc=${project_name//:/__}
     stdout_file="$stdout_dir/$(stdout_filename "$project_name")"
     test_result_xml_dir="$project_dir/build/test-results/test"
@@ -298,11 +332,6 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     test_result_html_dist_dir="$output_report_dir/${project_name_esc:-"root"}"
     go_mod_path="$project_dir/go.mod"
 
-    # Even if the build.gradle file exists, 
-    # ignore it if it is not recognized as a sub project by the root project.
-    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
-        continue
-    fi
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
@@ -341,7 +370,7 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
         # Collect the HTML test report
         cp -irp "$test_result_html_dir" "$test_result_html_dist_dir"
     fi
-done
+done < "$tmp_project_list_path"
 
 # Output the summary file
 sort "$tmp_summary_path" -o "$tmp_summary_path"
