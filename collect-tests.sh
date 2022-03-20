@@ -289,14 +289,14 @@ fi
 if [ "$skip_tests_flg" -eq 0 ]; then
     echo_info "The tests are skipped"
 else
-    find . -type d -name node_modules -prune -o -type f -name 'build.gradle*' -print | while read -r project_file; do
-        project_dir=$(dirname "$project_file")
-        project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
+    while read -r project_row; do
+        project_name=$(awk '{print $1}' <<< "$project_row")
+        project_dir=$(awk '{print $2}' <<< "$project_row")
         task_name="${project_name}:test"
 
-        # Even if the build.gradle file exists, 
-        # ignore it if it is not recognized as a sub project by the root project.
-        if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+        # Ignore root
+        # TODO: include root project
+        if [ "$project_name" == ":" ]; then
             continue
         fi
 
@@ -316,14 +316,14 @@ else
         # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
         ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
         set -e
-    done
+    done < "$tmp_project_list_path"
 fi
 
 # Read each build.gradle and copy test reports.
 echo_info "Collecting the test results" 
-find . -type f -name 'build.gradle*' -print | while read -r project_file; do
-    project_dir=$(dirname "$project_file")
-    project_name=$(sed -e "s|/|:|g" -e "s|^\.||" <<< "$project_dir")
+while read -r project_row; do
+    project_name=$(awk '{print $1}' <<< "$project_row")
+    project_dir=$(awk '{print $2}' <<< "$project_row")
     project_name_esc=${project_name//:/__}
     stdout_file="$stdout_dir/$(stdout_filename "$project_name")"
     test_result_xml_dir="$project_dir/build/test-results/test"
@@ -332,9 +332,9 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
     test_result_html_dist_dir="$output_report_dir/${project_name_esc:-"root"}"
     go_mod_path="$project_dir/go.mod"
 
-    # Even if the build.gradle file exists, 
-    # ignore it if it is not recognized as a sub project by the root project.
-    if ! is_sub_project "$project_name" "$tmp_project_list_path"; then
+    # Ignore root
+    # TODO: include root project
+    if [ "$project_name" == ":" ]; then
         continue
     fi
 
@@ -375,7 +375,7 @@ find . -type f -name 'build.gradle*' -print | while read -r project_file; do
         # Collect the HTML test report
         cp -irp "$test_result_html_dir" "$test_result_html_dist_dir"
     fi
-done
+done < "$tmp_project_list_path"
 
 # Output the summary file
 sort "$tmp_summary_path" -o "$tmp_summary_path"
