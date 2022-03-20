@@ -99,6 +99,9 @@
         .filter__status_list input:disabled ~ span {
             color: #bdbcbc;
         }
+        .filter__status_frequency {
+            font-size: 0.7em;
+        }
     </style>
     <script type="text/javascript">
         window.onload = function() {
@@ -201,7 +204,7 @@
                             {{/status_frequency.passed}}
                             >
                             <span>passed</span>
-                            <span>({{status_frequency.passed}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.passed}})</span>
                         </label>
                     </li>
                     <li>
@@ -212,7 +215,7 @@
                             {{/status_frequency.ignored}}
                             >
                             <span>ignored</span>
-                            <span>({{status_frequency.ignored}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.ignored}})</span>
                         </label>
                     </li>
                     <li>
@@ -223,7 +226,7 @@
                             {{/status_frequency.failed}}
                             >
                             <span>failed</span>
-                            <span>({{status_frequency.failed}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.failed}})</span>
                         </label>
                     </li>
                     <li>
@@ -234,7 +237,7 @@
                             {{/status_frequency.NO-TESTS}}
                             >
                             <span>NO-TESTS</span>
-                            <span>({{status_frequency.NO-TESTS}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.NO-TESTS}})</span>
                         </label>
                     </li>
                     <li>
@@ -245,7 +248,7 @@
                             {{/status_frequency.NO-TASK}}
                             >
                             <span>NO-TASK</span>
-                            <span>({{status_frequency.NO-TASK}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.NO-TASK}})</span>
                         </label>
                     </li>
                     <li>
@@ -256,7 +259,7 @@
                             {{/status_frequency.GO}}
                             >
                             <span>GO</span>
-                            <span>({{status_frequency.GO}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.GO}})</span>
                         </label>
                     </li>
                     <li>
@@ -267,7 +270,7 @@
                             {{/status_frequency.RESULT-NOT-FOUND}}
                             >
                             <span>RESULT-NOT-FOUND</span>
-                            <span>({{status_frequency.RESULT-NOT-FOUND}})</span>
+                            <span class="filter__status_frequency">({{status_frequency.RESULT-NOT-FOUND}})</span>
                         </label>
                     </li>
                 </ul>
