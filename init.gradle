@@ -1,8 +1,9 @@
 rootProject {
     task 'projectlist' {
         doFirst {
+            def output = file(getProperty("testcollector.prjoutput"))
             allprojects {
-                println "Prj ${project.path} ${projectDir.absolutePath}"
+                output.append "${project.path} ${projectDir.absolutePath}\n"
             }
         }
     }

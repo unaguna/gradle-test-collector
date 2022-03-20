@@ -130,8 +130,6 @@ readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
 
 readonly INIT_GRADLE="$SCRIPT_DIR/init.gradle"
 
-readonly PROJECT_LIST_SED="$SCRIPT_DIR/project-list.sed"
-
 
 ################################################################################
 # Analyze arguments
@@ -274,7 +272,7 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-./gradlew projectlist --init-script "$INIT_GRADLE" < /dev/null | sed -f "$PROJECT_LIST_SED" >> "$tmp_project_list_path"
+./gradlew projectlist --init-script "$INIT_GRADLE" "-Ptestcollector.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
 sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list
