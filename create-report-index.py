@@ -4,6 +4,8 @@
 """
 
 import argparse
+import collections
+import datetime
 import chevron
 import os
 from typing import Optional
@@ -16,6 +18,12 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # The path of this script file
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
+
+# The name of this tool
+TOOL_NAME = "Gradle Test Collector"
+
+# The URL of this tool
+TOOL_URL = "https://github.com/unaguna/gradle-test-collector"
 
 
 def dfor(value, default):
@@ -43,6 +51,10 @@ class Summary:
     project_name: str
     #: The name of sub-project (escape a charactor ':')
     project_name_esc: str
+    #: Status of this summary. It depends on build_status_str and result_str
+    status_str: str
+    #: Status of gradle build, such as 'SUCCESSFUL' or 'FAILED'
+    build_status_str: str
     #: Result such as 'passed' or 'failed'
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
@@ -61,6 +73,7 @@ class Summary:
     def __init__(
         self,
         project_name: str,
+        build_status_str: str,
         result_str: str,
         passed: Optional[int],
         failures: Optional[int],
@@ -68,6 +81,7 @@ class Summary:
         skipped: Optional[int],
     ) -> None:
         self.project_name = project_name
+        self.build_status_str = build_status_str
         self.result_str = result_str
         self.passed = passed
         self.failures = failures
@@ -76,10 +90,37 @@ class Summary:
 
         self.project_name_esc = project_name.replace(":", "__")
 
+        self.status_str = self.decide_status_str(self.build_status_str, self.result_str)
         self.tests = self.decide_tests(
             self.passed, self.failures, self.errors, self.skipped
         )
         self.is_effective = self.decide_is_effective(self.tests)
+
+    @classmethod
+    def decide_status_str(
+        cls,
+        build_status_str: str,
+        result_str: str,
+    ) -> str:
+        """Calculate the value of the field `status_str`
+
+        Normally, this function should be defined as a property,
+        but in order to be able to refer to it from chevron,
+        `status_str` is defined as a field and this function determines its value.
+
+        Args:
+            build_status_str (str): The value of `build_status_str` of the target instance.
+            result_str (str): The value of `result_str` of the target instance.
+
+        Returns:
+            str: The value of `status_str`
+        """
+        if result_str.lower() == "failed":
+            return result_str
+        elif build_status_str.lower() == "failed":
+            return "ERROR"
+        else:
+            return result_str
 
     @classmethod
     def decide_tests(
@@ -141,26 +182,28 @@ class Summary:
         line_parts = line.split()
 
         project_name = line_parts[0]
-        result_str = line_parts[1]
-        if len(line_parts) > 2:
-            passed = int(line_parts[2])
+        build_status_str = line_parts[1]
+        result_str = line_parts[2]
+        if len(line_parts) > 3:
+            passed = int(line_parts[3])
         else:
             passed = None
-        if len(line_parts) > 3:
-            failures = int(line_parts[3])
+        if len(line_parts) > 4:
+            failures = int(line_parts[4])
         else:
             failures = None
-        if len(line_parts) > 4:
-            errors = int(line_parts[4])
+        if len(line_parts) > 5:
+            errors = int(line_parts[5])
         else:
             errors = None
-        if len(line_parts) > 5:
-            skipped = int(line_parts[5])
+        if len(line_parts) > 6:
+            skipped = int(line_parts[6])
         else:
             skipped = None
 
         result = Summary(
             project_name=project_name,
+            build_status_str=build_status_str,
             result_str=result_str,
             passed=passed,
             failures=failures,
@@ -225,15 +268,24 @@ if __name__ == "__main__":
     output_top_path = os.path.join(args.output_dir_path, "top.html")
 
     summary_list = load_summary(args.summary_path)
+    data = {
+        "tool_name": TOOL_NAME,
+        "tool_url": TOOL_URL,
+        "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
+        "project_table": summary_list,
+        "status_frequency": collections.Counter(
+            map(lambda s: s.status_str, summary_list)
+        ),
+    }
 
     with open(args.template_index_path, "r") as f:
-        output_text = chevron.render(f, {"project_table": summary_list})
+        output_text = chevron.render(f, data)
 
     with open(output_index_path, "w") as f:
         print(output_text, file=f)
 
     with open(args.template_top_path, "r") as f:
-        output_text = chevron.render(f, {"project_table": summary_list})
+        output_text = chevron.render(f, data)
 
     with open(output_top_path, "w") as f:
         print(output_text, file=f)
