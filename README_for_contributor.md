@@ -18,6 +18,8 @@ This project has been developed using visual studio code and is configured for v
 This project uses python in some parts. Although python has many variations of interpreter and linter, this project specifies the following:
 
 - Use **Python3.9**
+- Require following packages
+  - [chevron](https://pypi.org/project/chevron/)
 - Format code by **[Black](https://black.readthedocs.io/en/stable/)**
   - If you use vscode, auto-formatting will runs. Otherwise, write code that conforms to Block in some way.
 

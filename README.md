@@ -6,8 +6,9 @@
 ## Execution Environment
 
 - It runs with bash (Not sure if it works with other shells.)
-- It requires python >=3.9
-    To verify it, run `python3 --version` and check it's version.
+- It requires python >=3.9. To verify it, run `python3 --version` and check it's version.
+  - In addition, the following libraries must be installed
+    - [chevron](https://pypi.org/project/chevron/)
 
 
 ## Usage Example
@@ -23,7 +24,9 @@
     Each argument in the above example is treated as follows:
     - **-d** result -- Directory where the results will be output. You can also specify an absolute path.
     - **--rerun-tests** -- If it is specified, tests that have already been run are also rerun.
-    - **~/gradle-project** -- The root directory of the gradle project.
+    - ~/gradle-project -- The root directory of the gradle project.
+
+    If you want to know about other options, please run `./collect-tests.sh --help`
 
 1. Check the results
 
