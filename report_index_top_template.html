@@ -57,6 +57,9 @@
             padding-top: 0;
             padding-bottom: 0;
         }
+        .summary_table__project_name_cell {
+            min-width: 8em;
+        }
         .summary_table__project_name_cell a {
             color: unset;
             text-decoration: none;
@@ -71,6 +74,8 @@
         .summary_table__numeric_cell {
             padding: 0 0.25em;
             width: 4em;
+        }
+        td.summary_table__numeric_cell {
             text-align: right;
         }
         #footer, #footer a {
@@ -143,12 +148,12 @@
             <table class="summary_table__table">
                 <thead>
                     <tr>
-                        <th>Sub-project</th>
-                        <th>Status</th>
-                        <th>passed</th>
-                        <th>failures</th>
-                        <th>errors</th>
-                        <th>skipped</th>
+                        <th class="summary_table__project_name_cell">Sub-project</th>
+                        <th class="summary_table__status_cell">Status</th>
+                        <th class="summary_table__numeric_cell">passed</th>
+                        <th class="summary_table__numeric_cell">failures</th>
+                        <th class="summary_table__numeric_cell">errors</th>
+                        <th class="summary_table__numeric_cell">skipped</th>
                     </tr>
                 </thead>
                 <tbody>
