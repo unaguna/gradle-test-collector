@@ -282,6 +282,7 @@ if __name__ == "__main__":
         "tool_url": TOOL_URL,
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
+        "project_table_row_count": len(summary_list),
         "status_frequency": collections.Counter(
             map(lambda s: s.status_str, summary_list)
         ),
