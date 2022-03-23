@@ -8,7 +8,7 @@ import collections
 import datetime
 import chevron
 import os
-from typing import Optional
+from typing import Any, Callable, Iterable, Optional, Union
 
 # The current directory when this script started.
 ORIGINAL_PWD = os.getcwd()
@@ -42,6 +42,15 @@ def dfor(value, default):
         return default
     else:
         return value
+
+
+def sum_by(
+    mapping: Callable[[Any], Union[int, float]], iterable: Iterable
+) -> Union[int, float]:
+    return sum(
+        filter(lambda x: x is not None, map(mapping, iterable)),
+        0,
+    )
 
 
 class Summary:
@@ -276,6 +285,13 @@ if __name__ == "__main__":
         "status_frequency": collections.Counter(
             map(lambda s: s.status_str, summary_list)
         ),
+        "total": {
+            "passed": sum_by(lambda s: s.passed, summary_list),
+            "failures": sum_by(lambda s: s.failures, summary_list),
+            "errors": sum_by(lambda s: s.errors, summary_list),
+            "skipped": sum_by(lambda s: s.skipped, summary_list),
+            "tests": sum_by(lambda s: s.tests, summary_list),
+        },
     }
 
     with open(args.template_index_path, "r") as f:
