@@ -248,6 +248,17 @@
                     </li>
                     <li>
                         <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="ERROR" checked
+                            {{^status_frequency.ERROR}}
+                            disabled
+                            {{/status_frequency.ERROR}}
+                            >
+                            <span>ERROR</span>
+                            <span class="filter__status_frequency">({{status_frequency.ERROR}})</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
                             <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked
                             {{^status_frequency.NO-TESTS}}
                             disabled
