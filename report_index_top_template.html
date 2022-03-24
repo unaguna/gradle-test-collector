@@ -15,6 +15,9 @@
         .summary_table__table tr:hover {
             border-bottom: black 3px dashed;
         }
+        .summary_table__total_row {
+            font-weight: bold;
+        }
         .summary_table__record--hide {
             display: none;
         }
@@ -201,6 +204,27 @@
                         </td>
                     </tr>
                     {{/project_table}}
+                    <tr class="summary_table__total_row">
+                        <td class="summary_table__project_name_cell">
+                            TOTAL ({{project_table_row_count}})
+                        </td>
+                        <td class="summary_table__status_cell"></td>
+                        <td class="summary_table__numeric_cell">
+                            {{total.passed}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{total.failures}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{total.errors}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{total.skipped}}
+                        </td>
+                        <td class="summary_table__numeric_cell">
+                            {{total.tests}}
+                        </td>
+                    </tr>
                 </tbody>
             </table>
             <div id="footer">
