@@ -335,31 +335,36 @@ while read -r project_row; do
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "${project_name:-"root"}" NO-TASK NO-TASK >> "$tmp_summary_path"
+        echo "${project_name:-"root"}" NO-TASK null NO-TASK >> "$tmp_summary_path"
         continue
     fi
 
     # get the result of ./gradlew test
     if [ "$skip_tests_flg" -ne 0 ]; then
         build_status=$(build_status "$stdout_file")
+        task_status=$(task_status "$project_name:test" "$stdout_file")
+        if [ -z "$task_status" ]; then
+            task_status="null"
+        fi
     else
         build_status="SKIPPED"
+        task_status="null"
     fi
 
     if [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "${project_name:-"root"}" "$build_status" GO >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "${project_name:-"root"}" "$build_status" INTEGRATION-TEST >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" INTEGRATION-TEST >> "$tmp_summary_path"
         elif [ "$skip_tests_flg" -ne 0 ]; then
-            echo "${project_name:-"root"}" "$build_status" NO-TESTS >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" NO-TESTS >> "$tmp_summary_path"
         else
-            echo "${project_name:-"root"}" "$build_status" RESULT-NOT-FOUND >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" RESULT-NOT-FOUND >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
         row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
-        echo "${project_name:-"root"}" "$build_status" "$row_data" >> "$tmp_summary_path"
+        echo "${project_name:-"root"}" "$build_status" "$task_status" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
         (

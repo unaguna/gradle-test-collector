@@ -192,21 +192,21 @@ class Summary:
 
         project_name = line_parts[0]
         build_status_str = line_parts[1]
-        result_str = line_parts[2]
-        if len(line_parts) > 3:
-            passed = int(line_parts[3])
+        result_str = line_parts[3]
+        if len(line_parts) > 4:
+            passed = int(line_parts[4])
         else:
             passed = None
-        if len(line_parts) > 4:
-            failures = int(line_parts[4])
+        if len(line_parts) > 5:
+            failures = int(line_parts[5])
         else:
             failures = None
-        if len(line_parts) > 5:
-            errors = int(line_parts[5])
+        if len(line_parts) > 6:
+            errors = int(line_parts[6])
         else:
             errors = None
-        if len(line_parts) > 6:
-            skipped = int(line_parts[6])
+        if len(line_parts) > 7:
+            skipped = int(line_parts[7])
         else:
             skipped = None
 
