@@ -361,7 +361,10 @@ while read -r project_row; do
         fi
     else
         # Count tests and print it
-        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
+        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 --no-run-if-empty "$PRINT_LINE_PY")
+        if [ -z "$row_data" ]; then
+            row_data="NO-RESULT"
+        fi
         echo "${project_name:-"root"}" "$build_status" "$task_status" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
