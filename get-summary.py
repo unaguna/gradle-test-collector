@@ -70,10 +70,10 @@ class TestSummary:
 
 
 def analyze_arguments(args: Sequence[str]) -> Args:
-    if len(args) < 2:
-        raise Exception(f"Illegal arguments: {args}")
-
-    test_xml_list = args[1:]
+    if len(args) >= 2:
+        test_xml_list = args[1:]
+    else:
+        test_xml_list = []
 
     return Args(test_xml_list=test_xml_list)
 
