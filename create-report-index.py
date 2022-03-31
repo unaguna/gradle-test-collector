@@ -64,6 +64,8 @@ class Summary:
     status_str: str
     #: Status of gradle build, such as 'SUCCESSFUL' or 'FAILED'
     build_status_str: str
+    #: Status of gradle test task, such as 'SKIPPED'.
+    task_status_str: Optional[str]
     #: Result such as 'passed' or 'failed'
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
@@ -83,6 +85,7 @@ class Summary:
         self,
         project_name: str,
         build_status_str: str,
+        task_status_str: str,
         result_str: str,
         passed: Optional[int],
         failures: Optional[int],
@@ -91,6 +94,7 @@ class Summary:
     ) -> None:
         self.project_name = project_name
         self.build_status_str = build_status_str
+        self.task_status_str = task_status_str
         self.result_str = result_str
         self.passed = passed
         self.failures = failures
@@ -99,7 +103,9 @@ class Summary:
 
         self.project_name_esc = project_name.replace(":", "__")
 
-        self.status_str = self.decide_status_str(self.build_status_str, self.result_str)
+        self.status_str = self.decide_status_str(
+            self.build_status_str, self.task_status_str, self.result_str
+        )
         self.tests = self.decide_tests(
             self.passed, self.failures, self.errors, self.skipped
         )
@@ -109,6 +115,7 @@ class Summary:
     def decide_status_str(
         cls,
         build_status_str: str,
+        task_status_str: str,
         result_str: str,
     ) -> str:
         """Calculate the value of the field `status_str`
@@ -119,6 +126,7 @@ class Summary:
 
         Args:
             build_status_str (str): The value of `build_status_str` of the target instance.
+            task_status_str (str): The value of `task_status_str` of the target instance.
             result_str (str): The value of `result_str` of the target instance.
 
         Returns:
@@ -128,6 +136,8 @@ class Summary:
             return result_str
         elif build_status_str.lower() == "failed":
             return "ERROR"
+        elif result_str.lower() == "no-result" and task_status_str is not None:
+            return task_status_str
         else:
             return result_str
 
@@ -192,6 +202,9 @@ class Summary:
 
         project_name = line_parts[0]
         build_status_str = line_parts[1]
+        task_status_str = line_parts[2]
+        if task_status_str.lower() == "null":
+            task_status_str = None
         result_str = line_parts[3]
         if len(line_parts) > 4:
             passed = int(line_parts[4])
@@ -213,6 +226,7 @@ class Summary:
         result = Summary(
             project_name=project_name,
             build_status_str=build_status_str,
+            task_status_str=task_status_str,
             result_str=result_str,
             passed=passed,
             failures=failures,

@@ -41,6 +41,14 @@
             color: #444;
             background-color: #ccc;
         }
+        .summary_table__record--NO-SOURCE {
+            color: #444;
+            background-color: #ccc;
+        }
+        .summary_table__record--SKIPPED {
+            color: #444;
+            background-color: #ccc;
+        }
         .summary_table__record--NO-RESULT  {
             color: #444;
             background-color: #ccc;
@@ -69,7 +77,7 @@
         }
         .summary_table__status_cell {
             padding: 0 0.25em;
-            width: 6em;
+            width: 7em;
         }
         .summary_table__numeric_cell {
             padding: 0 0.25em;
@@ -287,6 +295,28 @@
                             >
                             <span>NO-TESTS</span>
                             <span class="filter__status_frequency">({{status_frequency.NO-TESTS}})</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-SOURCE" checked
+                            {{^status_frequency.NO-SOURCE}}
+                            disabled
+                            {{/status_frequency.NO-SOURCE}}
+                            >
+                            <span>NO-SOURCE</span>
+                            <span class="filter__status_frequency">({{status_frequency.NO-SOURCE}})</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="SKIPPED" checked
+                            {{^status_frequency.SKIPPED}}
+                            disabled
+                            {{/status_frequency.SKIPPED}}
+                            >
+                            <span>SKIPPED</span>
+                            <span class="filter__status_frequency">({{status_frequency.SKIPPED}})</span>
                         </label>
                     </li>
                     <li>
