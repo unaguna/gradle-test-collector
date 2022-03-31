@@ -356,10 +356,8 @@ while read -r project_row; do
             echo "${project_name:-"root"}" "$build_status" "$task_status" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
             echo "${project_name:-"root"}" "$build_status" "$task_status" INTEGRATION-TEST >> "$tmp_summary_path"
-        elif [ "$skip_tests_flg" -ne 0 ]; then
-            echo "${project_name:-"root"}" "$build_status" "$task_status" NO-TESTS >> "$tmp_summary_path"
         else
-            echo "${project_name:-"root"}" "$build_status" "$task_status" RESULT-NOT-FOUND >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" NO-RESULT >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it

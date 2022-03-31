@@ -41,16 +41,13 @@
             color: #444;
             background-color: #ccc;
         }
+        .summary_table__record--NO-RESULT  {
+            color: #444;
+            background-color: #ccc;
+        }
         .summary_table__record--NO-TASK {
             color: #444;
             background-color: #ccc;
-        }
-        .summary_table__record--RESULT-NOT-FOUND  {
-            color: #444;
-            background-color: #ccc;
-        }
-        .summary_table__record--RESULT-NOT-FOUND .summary_table__status_cell {
-            font-size: 0.6em;
         }
         .summary_table__record--GO {
             color: #444;
@@ -294,6 +291,17 @@
                     </li>
                     <li>
                         <label>
+                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-RESULT" checked
+                            {{^status_frequency.NO-RESULT}}
+                            disabled
+                            {{/status_frequency.NO-RESULT}}
+                            >
+                            <span>NO-RESULT</span>
+                            <span class="filter__status_frequency">({{status_frequency.NO-RESULT}})</span>
+                        </label>
+                    </li>
+                    <li>
+                        <label>
                             <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked
                             {{^status_frequency.NO-TASK}}
                             disabled
@@ -312,17 +320,6 @@
                             >
                             <span>GO</span>
                             <span class="filter__status_frequency">({{status_frequency.GO}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="RESULT-NOT-FOUND" checked
-                            {{^status_frequency.RESULT-NOT-FOUND}}
-                            disabled
-                            {{/status_frequency.RESULT-NOT-FOUND}}
-                            >
-                            <span>RESULT-NOT-FOUND</span>
-                            <span class="filter__status_frequency">({{status_frequency.RESULT-NOT-FOUND}})</span>
                         </label>
                     </li>
                 </ul>
