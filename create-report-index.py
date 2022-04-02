@@ -20,10 +20,13 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
 
 # The name of this tool
-TOOL_NAME = "Gradle Test Collector"
+TOOL_NAME = os.environ.get("GRADLE_TEST_COLLECTOR_APP_NAME")
 
 # The URL of this tool
-TOOL_URL = "https://github.com/unaguna/gradle-test-collector"
+TOOL_URL = os.environ.get("GRADLE_TEST_COLLECTOR_URL")
+
+# The version number of this tool
+TOOL_VERSION = os.environ.get("GRADLE_TEST_COLLECTOR_VERSION")
 
 
 def dfor(value, default):
@@ -294,6 +297,7 @@ if __name__ == "__main__":
     data = {
         "tool_name": TOOL_NAME,
         "tool_url": TOOL_URL,
+        "tool_version": TOOL_VERSION,
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
         "project_table_row_count": len(summary_list),
