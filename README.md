@@ -7,8 +7,8 @@
 
 - It runs with bash (Not sure if it works with other shells.)
 - It requires python >=3.9. To verify it, run `python3 --version` and check it's version.
-  - In addition, the following libraries must be installed
-    - [chevron](https://pypi.org/project/chevron/)
+  - In addition, some packages written in [requirements.txt](requirements.txt) must be installed
+    - You can install the required packages into the current python environment with the following command: `pip install -r requirements.txt`
 
 
 ## Usage Example
