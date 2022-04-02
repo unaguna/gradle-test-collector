@@ -25,6 +25,9 @@ TOOL_NAME = "Gradle Test Collector"
 # The URL of this tool
 TOOL_URL = "https://github.com/unaguna/gradle-test-collector"
 
+# The version number of this tool
+TOOL_VERSION = os.environ.get("GRADLE_TEST_COLLECTOR_VERSION")
+
 
 def dfor(value, default):
     """null coalescing operator
@@ -294,6 +297,7 @@ if __name__ == "__main__":
     data = {
         "tool_name": TOOL_NAME,
         "tool_url": TOOL_URL,
+        "tool_version": TOOL_VERSION,
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
         "project_table_row_count": len(summary_list),
