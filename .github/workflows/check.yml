@@ -1,0 +1,37 @@
+name: CHECK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v3.1.0
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.1.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+          cache: 'gradle'
+
+      - name: Checkout an example gradle project
+        uses: actions/checkout@v3
+        with:
+          repository: 'https://github.com/unaguna/gradle-example.git'
+
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Run collect-tests.sh
+        run: ./collect-tests.sh -d result $GITHUB_WORKSPACE/gradle-example
