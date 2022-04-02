@@ -22,13 +22,19 @@ readonly SCRIPT_DIR
 # The path of this script file
 SCRIPT_NAME=$(basename "$0")
 readonly SCRIPT_NAME
+
 # The version number of this application
 GRADLE_TEST_COLLECTOR_VERSION=$(cat "$SCRIPT_DIR/.version")
 export GRADLE_TEST_COLLECTOR_VERSION
 readonly GRADLE_TEST_COLLECTOR_VERSION
 # Application name
 GRADLE_TEST_COLLECTOR_APP_NAME="Gradle Test Collector"
+export GRADLE_TEST_COLLECTOR_APP_NAME
 readonly GRADLE_TEST_COLLECTOR_APP_NAME
+# Application URL
+GRADLE_TEST_COLLECTOR_URL="https://github.com/unaguna/gradle-test-collector"
+export GRADLE_TEST_COLLECTOR_URL
+readonly GRADLE_TEST_COLLECTOR_URL
 
 
 ################################################################################
