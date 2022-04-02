@@ -49,3 +49,29 @@ function build_status() {
     echo "$status"
     return $result
 }
+
+# Get task status from the stdout file
+#
+# Arguments
+#   $1 - A task name. It can start with ':', such as ":sub-project:test". 
+#   $2 - the path of output of gradle
+#
+# Returns
+#   Returns 0 if the status is found. Returns non-zero otherwise.
+function task_status() {
+    local -r task_name=${1#:}
+    local -r stdout_path=$2
+    
+    set +e
+    status=$(grep "> Task :$task_name " "$stdout_path" | head -n 1 | awk '{print $4}')
+    result=$?
+    set -e
+
+    if [ $result -ne 0 ] && [ $result -ne 1 ]; then
+        echo_err "Failed to read the file: $task_list_path"
+        exit $result
+    fi
+
+    echo "$status"
+    return 0
+}
