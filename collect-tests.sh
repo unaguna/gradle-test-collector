@@ -376,7 +376,7 @@ while read -r project_row; do
         fi
     else
         # Count tests and print it
-        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 --no-run-if-empty "$PRINT_LINE_PY")
+        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0r "$PRINT_LINE_PY")
         if [ -z "$row_data" ]; then
             row_data="NO-RESULT"
         fi
@@ -385,7 +385,7 @@ while read -r project_row; do
         # Collect the XML test report
         (
             cd "$test_result_xml_dir" &&
-            find . -name '*.xml' -print0 | xargs -0 --no-run-if-empty tar -czf "$test_result_xml_tar"
+            find . -name '*.xml' -print0 | xargs -0r tar -czf "$test_result_xml_tar"
         )
 
         # Collect the HTML test report
