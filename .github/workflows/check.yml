@@ -12,11 +12,22 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Checkout an example gradle project
+        uses: actions/checkout@v3
+        with:
+          repository: 'unaguna/gradle-example'
+          path: 'gradle-example'
+
       - name: Setup Python
         uses: actions/setup-python@v3.1.0
         with:
           python-version: '3.9'
           cache: 'pip'
+
+      - run: pip install -r requirements.txt
 
       - name: Setup Java JDK
         uses: actions/setup-java@v3.1.0
@@ -24,14 +35,6 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
           cache: 'gradle'
-
-      - name: Checkout an example gradle project
-        uses: actions/checkout@v3
-        with:
-          repository: 'https://github.com/unaguna/gradle-example.git'
-
-      - name: Checkout the repository
-        uses: actions/checkout@v3
 
       - name: Run collect-tests.sh
         run: ./collect-tests.sh -d result $GITHUB_WORKSPACE/gradle-example
