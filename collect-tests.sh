@@ -23,6 +23,19 @@ readonly SCRIPT_DIR
 SCRIPT_NAME=$(basename "$0")
 readonly SCRIPT_NAME
 
+# The version number of this application
+GRADLE_TEST_COLLECTOR_VERSION=$(cat "$SCRIPT_DIR/.version")
+export GRADLE_TEST_COLLECTOR_VERSION
+readonly GRADLE_TEST_COLLECTOR_VERSION
+# Application name
+GRADLE_TEST_COLLECTOR_APP_NAME="Gradle Test Collector"
+export GRADLE_TEST_COLLECTOR_APP_NAME
+readonly GRADLE_TEST_COLLECTOR_APP_NAME
+# Application URL
+GRADLE_TEST_COLLECTOR_URL="https://github.com/unaguna/gradle-test-collector"
+export GRADLE_TEST_COLLECTOR_URL
+readonly GRADLE_TEST_COLLECTOR_URL
+
 
 ################################################################################
 # Include
@@ -42,6 +55,8 @@ function usage_exit () {
 }
 
 function echo_help () {
+    echo "$GRADLE_TEST_COLLECTOR_APP_NAME $GRADLE_TEST_COLLECTOR_VERSION"
+    echo ""
     echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests|--skip-tests] <main_project_directory>"
     echo ""
     echo "Options"
@@ -335,36 +350,42 @@ while read -r project_row; do
 
     if ! task_exists "$project_name:test" "$tmp_tasks_path"
     then
-        echo "${project_name:-"root"}" NO-TASK NO-TASK >> "$tmp_summary_path"
+        echo "${project_name:-"root"}" NO-TASK null NO-TASK >> "$tmp_summary_path"
         continue
     fi
 
     # get the result of ./gradlew test
     if [ "$skip_tests_flg" -ne 0 ]; then
         build_status=$(build_status "$stdout_file")
+        task_status=$(task_status "$project_name:test" "$stdout_file")
+        if [ -z "$task_status" ]; then
+            task_status="null"
+        fi
     else
         build_status="SKIPPED"
+        task_status="null"
     fi
 
     if [ ! -e "$test_result_xml_dir" ]; then
         if [ -e "$go_mod_path" ]; then
-            echo "${project_name:-"root"}" "$build_status" GO >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" GO >> "$tmp_summary_path"
         elif [ "$project_name" == ":testing:integration-tests" ]; then
-            echo "${project_name:-"root"}" "$build_status" INTEGRATION-TEST >> "$tmp_summary_path"
-        elif [ "$skip_tests_flg" -ne 0 ]; then
-            echo "${project_name:-"root"}" "$build_status" NO-TESTS >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" INTEGRATION-TEST >> "$tmp_summary_path"
         else
-            echo "${project_name:-"root"}" "$build_status" RESULT-NOT-FOUND >> "$tmp_summary_path"
+            echo "${project_name:-"root"}" "$build_status" "$task_status" NO-RESULT >> "$tmp_summary_path"
         fi
     else
         # Count tests and print it
-        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0 "$PRINT_LINE_PY")
-        echo "${project_name:-"root"}" "$build_status" "$row_data" >> "$tmp_summary_path"
+        row_data=$(find "$test_result_xml_dir" -name '*.xml' -print0 | xargs -0r "$PRINT_LINE_PY")
+        if [ -z "$row_data" ]; then
+            row_data="NO-RESULT"
+        fi
+        echo "${project_name:-"root"}" "$build_status" "$task_status" "$row_data" >> "$tmp_summary_path"
 
         # Collect the XML test report
         (
             cd "$test_result_xml_dir" &&
-            find . -name '*.xml' -print0 | xargs -0 tar -czf "$test_result_xml_tar"
+            find . -name '*.xml' -print0 | xargs -0r tar -czf "$test_result_xml_tar"
         )
 
         # Collect the HTML test report

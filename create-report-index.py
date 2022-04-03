@@ -8,7 +8,7 @@ import collections
 import datetime
 import chevron
 import os
-from typing import Optional
+from typing import Any, Callable, Iterable, Optional, Union
 
 # The current directory when this script started.
 ORIGINAL_PWD = os.getcwd()
@@ -20,10 +20,13 @@ SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
 SCRIPT_NAME = os.path.basename(os.path.abspath(__file__))
 
 # The name of this tool
-TOOL_NAME = "Gradle Test Collector"
+TOOL_NAME = os.environ.get("GRADLE_TEST_COLLECTOR_APP_NAME")
 
 # The URL of this tool
-TOOL_URL = "https://github.com/unaguna/gradle-test-collector"
+TOOL_URL = os.environ.get("GRADLE_TEST_COLLECTOR_URL")
+
+# The version number of this tool
+TOOL_VERSION = os.environ.get("GRADLE_TEST_COLLECTOR_VERSION")
 
 
 def dfor(value, default):
@@ -44,6 +47,15 @@ def dfor(value, default):
         return value
 
 
+def sum_by(
+    mapping: Callable[[Any], Union[int, float]], iterable: Iterable
+) -> Union[int, float]:
+    return sum(
+        filter(lambda x: x is not None, map(mapping, iterable)),
+        0,
+    )
+
+
 class Summary:
     """Test summary of tests of one sub-project."""
 
@@ -55,6 +67,8 @@ class Summary:
     status_str: str
     #: Status of gradle build, such as 'SUCCESSFUL' or 'FAILED'
     build_status_str: str
+    #: Status of gradle test task, such as 'SKIPPED'.
+    task_status_str: Optional[str]
     #: Result such as 'passed' or 'failed'
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
@@ -74,6 +88,7 @@ class Summary:
         self,
         project_name: str,
         build_status_str: str,
+        task_status_str: str,
         result_str: str,
         passed: Optional[int],
         failures: Optional[int],
@@ -82,6 +97,7 @@ class Summary:
     ) -> None:
         self.project_name = project_name
         self.build_status_str = build_status_str
+        self.task_status_str = task_status_str
         self.result_str = result_str
         self.passed = passed
         self.failures = failures
@@ -90,7 +106,9 @@ class Summary:
 
         self.project_name_esc = project_name.replace(":", "__")
 
-        self.status_str = self.decide_status_str(self.build_status_str, self.result_str)
+        self.status_str = self.decide_status_str(
+            self.build_status_str, self.task_status_str, self.result_str
+        )
         self.tests = self.decide_tests(
             self.passed, self.failures, self.errors, self.skipped
         )
@@ -100,6 +118,7 @@ class Summary:
     def decide_status_str(
         cls,
         build_status_str: str,
+        task_status_str: str,
         result_str: str,
     ) -> str:
         """Calculate the value of the field `status_str`
@@ -110,6 +129,7 @@ class Summary:
 
         Args:
             build_status_str (str): The value of `build_status_str` of the target instance.
+            task_status_str (str): The value of `task_status_str` of the target instance.
             result_str (str): The value of `result_str` of the target instance.
 
         Returns:
@@ -119,6 +139,8 @@ class Summary:
             return result_str
         elif build_status_str.lower() == "failed":
             return "ERROR"
+        elif result_str.lower() == "no-result" and task_status_str is not None:
+            return task_status_str
         else:
             return result_str
 
@@ -183,27 +205,31 @@ class Summary:
 
         project_name = line_parts[0]
         build_status_str = line_parts[1]
-        result_str = line_parts[2]
-        if len(line_parts) > 3:
-            passed = int(line_parts[3])
+        task_status_str = line_parts[2]
+        if task_status_str.lower() == "null":
+            task_status_str = None
+        result_str = line_parts[3]
+        if len(line_parts) > 4:
+            passed = int(line_parts[4])
         else:
             passed = None
-        if len(line_parts) > 4:
-            failures = int(line_parts[4])
+        if len(line_parts) > 5:
+            failures = int(line_parts[5])
         else:
             failures = None
-        if len(line_parts) > 5:
-            errors = int(line_parts[5])
+        if len(line_parts) > 6:
+            errors = int(line_parts[6])
         else:
             errors = None
-        if len(line_parts) > 6:
-            skipped = int(line_parts[6])
+        if len(line_parts) > 7:
+            skipped = int(line_parts[7])
         else:
             skipped = None
 
         result = Summary(
             project_name=project_name,
             build_status_str=build_status_str,
+            task_status_str=task_status_str,
             result_str=result_str,
             passed=passed,
             failures=failures,
@@ -271,11 +297,20 @@ if __name__ == "__main__":
     data = {
         "tool_name": TOOL_NAME,
         "tool_url": TOOL_URL,
+        "tool_version": TOOL_VERSION,
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
+        "project_table_row_count": len(summary_list),
         "status_frequency": collections.Counter(
             map(lambda s: s.status_str, summary_list)
         ),
+        "total": {
+            "passed": sum_by(lambda s: s.passed, summary_list),
+            "failures": sum_by(lambda s: s.failures, summary_list),
+            "errors": sum_by(lambda s: s.errors, summary_list),
+            "skipped": sum_by(lambda s: s.skipped, summary_list),
+            "tests": sum_by(lambda s: s.tests, summary_list),
+        },
     }
 
     with open(args.template_index_path, "r") as f:
