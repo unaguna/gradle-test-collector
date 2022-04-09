@@ -152,7 +152,7 @@ readonly INIT_GRADLE="$SCRIPT_DIR/init.gradle"
 declare -i argc=0
 declare -a argv=()
 output_dir=
-rerun_tests_flg=1
+run_only_updated_flg=1
 skip_tests_flg=1
 help_flg=1
 invalid_option_flg=1
@@ -167,8 +167,8 @@ while (( $# > 0 )); do
             if [[ "$1" == '-d' ]]; then
                 output_dir="$2"
                 shift
-            elif [[ "$1" == "--rerun-tests" ]]; then
-                rerun_tests_flg=0
+            elif [[ "$1" == "--run-only-updated" ]]; then
+                run_only_updated_flg=0
             elif [[ "$1" == "--skip-tests" ]]; then
                 skip_tests_flg=0
             elif [[ "$1" == "--help" ]]; then
@@ -208,7 +208,7 @@ if [ "$argc" -ne 1 ]; then
     usage_exit 1
 fi
 
-if [ "$rerun_tests_flg" -eq 0 ] && [ "$skip_tests_flg" -eq 0 ]; then
+if [ "$run_only_updated_flg" -eq 0 ] && [ "$skip_tests_flg" -eq 0 ]; then
     usage_exit 1
 fi
 
@@ -295,7 +295,7 @@ echo_info "Loading task list"
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
 # Disable UP-TO-DATE
-if [ "$rerun_tests_flg" -eq 0 ]; then
+if [ "$run_only_updated_flg" -ne 0 ]; then
     echo_info "Deleting the cache of test result"
     ./gradlew cleanTest < /dev/null >> /dev/null
 fi
