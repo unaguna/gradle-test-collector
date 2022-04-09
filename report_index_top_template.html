@@ -65,6 +65,9 @@
             padding-top: 0;
             padding-bottom: 0;
         }
+        .summary_table__field--hide {
+            display: none;
+        }
         .summary_table__project_name_cell {
             min-width: 8em;
         }
@@ -158,6 +161,23 @@
                             row.classList.remove("summary_table__record--hide");
                         } else {
                             row.classList.add("summary_table__record--hide");
+                        }
+                    }
+                };
+                // To prevent the previous state from being carried over when reloading.
+                e.checked = true;
+            }
+
+            // Add onchange event to the checkboxes for field selector
+            for(const e of document.getElementsByClassName("field_selector__field_checkbox")) {
+                const columnClassName = `summary_table__${e.dataset.field}_cell`;
+                e.onclick = function(event) {
+                    const visible = e.checked;
+                    for(let row of document.getElementsByClassName(columnClassName)) {
+                        if(visible) {
+                            row.classList.remove("summary_table__field--hide");
+                        } else {
+                            row.classList.add("summary_table__field--hide");
                         }
                     }
                 };
