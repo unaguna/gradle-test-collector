@@ -68,29 +68,29 @@
         .summary_table__field--hide {
             display: none;
         }
-        .summary_table__project_name_cell {
+        .summary_table__field_project_name {
             min-width: 8em;
         }
-        .summary_table__project_name_cell a {
+        .summary_table__field_project_name a {
             color: unset;
             text-decoration: none;
         }
-        .summary_table__project_name_cell a:hover {
+        .summary_table__field_project_name a:hover {
             text-decoration: underline;
         }
-        .summary_table__status_cell {
+        .summary_table__field_status {
             padding: 0 0.25em;
             width: 7em;
         }
-        .summary_table__timestamp_cell {
+        .summary_table__field_timestamp {
             padding: 0 0.25em;
             width: 12em;
         }
-        .summary_table__numeric_cell {
+        .summary_table__field_numeric {
             padding: 0 0.25em;
             width: 4em;
         }
-        td.summary_table__numeric_cell {
+        td.summary_table__field_numeric {
             text-align: right;
         }
         #footer, #footer a {
@@ -170,7 +170,7 @@
 
             // Add onchange event to the checkboxes for field selector
             for(const e of document.getElementsByClassName("field_selector__field_checkbox")) {
-                const columnClassName = `summary_table__${e.dataset.field}_cell`;
+                const columnClassName = `summary_table__field_${e.dataset.field}`;
                 e.onclick = function(event) {
                     const visible = e.checked;
                     for(let row of document.getElementsByClassName(columnClassName)) {
@@ -194,14 +194,14 @@
             <table class="summary_table__table">
                 <thead>
                     <tr>
-                        <th class="summary_table__project_name_cell">Sub-project</th>
-                        <th class="summary_table__status_cell">Status</th>
-                        <th class="summary_table__timestamp_cell">Timestamp {{#local_timezone}}({{local_timezone}}){{/local_timezone}}</th>
-                        <th class="summary_table__numeric_cell">passed</th>
-                        <th class="summary_table__numeric_cell">failures</th>
-                        <th class="summary_table__numeric_cell">errors</th>
-                        <th class="summary_table__numeric_cell">skipped</th>
-                        <th class="summary_table__numeric_cell">total</th>
+                        <th class="summary_table__field_project_name">Sub-project</th>
+                        <th class="summary_table__field_status">Status</th>
+                        <th class="summary_table__field_timestamp">Timestamp {{#local_timezone}}({{local_timezone}}){{/local_timezone}}</th>
+                        <th class="summary_table__field_numeric">passed</th>
+                        <th class="summary_table__field_numeric">failures</th>
+                        <th class="summary_table__field_numeric">errors</th>
+                        <th class="summary_table__field_numeric">skipped</th>
+                        <th class="summary_table__field_numeric">total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -217,7 +217,7 @@
                             {{/is_effective}}
                         ">
                         <td class="
-                                summary_table__project_name_cell
+                                summary_table__field_project_name
                                 {{#is_effective}}
                                 clickable
                                 {{/is_effective}}
@@ -225,48 +225,48 @@
                             data-href="./{{project_name_esc}}/index.html">
                             {{project_name}}
                         </td>
-                        <td class="summary_table__status_cell">
+                        <td class="summary_table__field_status">
                             {{status_str}}
                         </td>
-                        <td class="summary_table__timestamp_cell">
+                        <td class="summary_table__field_timestamp">
                             {{timestamp_naive}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{passed}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{failures}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{errors}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{skipped}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{tests}}
                         </td>
                     </tr>
                     {{/project_table}}
                     <tr class="summary_table__total_row">
-                        <td class="summary_table__project_name_cell">
+                        <td class="summary_table__field_project_name">
                             TOTAL ({{project_table_row_count}})
                         </td>
-                        <td class="summary_table__status_cell"></td>
-                        <td class="summary_table__timestamp_cell"></td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_status"></td>
+                        <td class="summary_table__field_timestamp"></td>
+                        <td class="summary_table__field_numeric">
                             {{total.passed}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.failures}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.errors}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.skipped}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.tests}}
                         </td>
                     </tr>
