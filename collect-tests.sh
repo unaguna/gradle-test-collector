@@ -247,7 +247,7 @@ trap 'trap - EXIT; remove_tmpfile; exit -1' INT PIPE TERM
 # the output of `gradle projects`
 tmp_project_list_path=$(mktemp)
 readonly tmp_project_list_path
-# tmpfile_list+=( "$tmp_project_list_path" )
+tmpfile_list+=( "$tmp_project_list_path" )
 
 # the output of `gradle tasks`
 tmp_tasks_path=$(mktemp)
