@@ -115,7 +115,9 @@ def load_summary(xml_path: str) -> TestSummary:
     if testsuite is None:
         raise Exception(f"<testsuite> is not found in the xml: {args}")
 
-    timestamp = dt.datetime.fromisoformat(testsuite.attrib["timestamp"])
+    timestamp = dt.datetime.fromisoformat(testsuite.attrib["timestamp"]).replace(
+        tzinfo=dt.timezone.utc
+    )
     tests = int(testsuite.attrib["tests"])
     skipped = int(testsuite.attrib["skipped"])
     failures = int(testsuite.attrib["failures"])
