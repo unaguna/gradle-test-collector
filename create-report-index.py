@@ -73,6 +73,8 @@ class Summary:
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
     is_effective: bool
+    #: The datetime the tests were run
+    timestamp: Optional[datetime.datetime]
     #: The number of tests
     tests: Optional[int]
     #: The number of tests passed
@@ -90,6 +92,7 @@ class Summary:
         build_status_str: str,
         task_status_str: str,
         result_str: str,
+        timestamp: Optional[datetime.datetime],
         passed: Optional[int],
         failures: Optional[int],
         errors: Optional[int],
@@ -99,6 +102,7 @@ class Summary:
         self.build_status_str = build_status_str
         self.task_status_str = task_status_str
         self.result_str = result_str
+        self.timestamp = timestamp
         self.passed = passed
         self.failures = failures
         self.errors = errors
@@ -209,6 +213,10 @@ class Summary:
         if task_status_str.lower() == "null":
             task_status_str = None
         result_str = line_parts[3]
+        if len(line_parts) > 4:
+            timestamp = datetime.datetime.fromisoformat(line_parts[4])
+        else:
+            timestamp = None
         if len(line_parts) > 5:
             passed = int(line_parts[5])
         else:
@@ -231,6 +239,7 @@ class Summary:
             build_status_str=build_status_str,
             task_status_str=task_status_str,
             result_str=result_str,
+            timestamp=timestamp,
             passed=passed,
             failures=failures,
             errors=errors,
