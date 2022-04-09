@@ -81,7 +81,7 @@
         }
         .summary_table__timestamp_cell {
             padding: 0 0.25em;
-            width: 11em;
+            width: 12em;
         }
         .summary_table__numeric_cell {
             padding: 0 0.25em;
@@ -165,7 +165,7 @@
                     <tr>
                         <th class="summary_table__project_name_cell">Sub-project</th>
                         <th class="summary_table__status_cell">Status</th>
-                        <th class="summary_table__timestamp_cell">Timestamp</th>
+                        <th class="summary_table__timestamp_cell">Timestamp {{#local_timezone}}({{local_timezone}}){{/local_timezone}}</th>
                         <th class="summary_table__numeric_cell">passed</th>
                         <th class="summary_table__numeric_cell">failures</th>
                         <th class="summary_table__numeric_cell">errors</th>

@@ -59,6 +59,21 @@ def sum_by(
     )
 
 
+def shortage_timezorn(timezone: datetime.timezone) -> str:
+    """Shortage string of a timezone
+
+    Returns:
+        str: If `str(timezone)` is "UTC+xx:xx", returns "+xx:xx". Otherwise, returns `str(timezone)` as is.
+    """
+    timezone_str = str(timezone)
+
+    # If "UTC+xx:xx", local_timezone is "+xx:xx". Otherwise, as is.
+    if timezone_str == "UTC":
+        return timezone_str
+    else:
+        return timezone_str.removeprefix("UTC")
+
+
 class Summary:
     """Test summary of tests of one sub-project."""
 
@@ -325,6 +340,7 @@ if __name__ == "__main__":
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
         "project_table_row_count": len(summary_list),
+        "local_timezone": shortage_timezorn(LOCAL_TIMEZONE),
         "status_frequency": collections.Counter(
             map(lambda s: s.status_str, summary_list)
         ),
