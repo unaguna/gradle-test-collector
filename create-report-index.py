@@ -28,6 +28,9 @@ TOOL_URL = os.environ.get("GRADLE_TEST_COLLECTOR_URL")
 # The version number of this tool
 TOOL_VERSION = os.environ.get("GRADLE_TEST_COLLECTOR_VERSION")
 
+# The local timezone
+LOCAL_TIMEZONE = datetime.datetime.now().astimezone().tzinfo
+
 
 def dfor(value, default):
     """null coalescing operator
@@ -56,6 +59,21 @@ def sum_by(
     )
 
 
+def shortage_timezorn(timezone: datetime.timezone) -> str:
+    """Shortage string of a timezone
+
+    Returns:
+        str: If `str(timezone)` is "UTC+xx:xx", returns "+xx:xx". Otherwise, returns `str(timezone)` as is.
+    """
+    timezone_str = str(timezone)
+
+    # If "UTC+xx:xx", local_timezone is "+xx:xx". Otherwise, as is.
+    if timezone_str == "UTC":
+        return timezone_str
+    else:
+        return timezone_str.removeprefix("UTC")
+
+
 class Summary:
     """Test summary of tests of one sub-project."""
 
@@ -73,6 +91,12 @@ class Summary:
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
     is_effective: bool
+    #: The aware datetime (UTC) the tests were run
+    timestamp: Optional[datetime.datetime]
+    #: The aware datetime (local timezone) the tests were run
+    timestamp_local: Optional[datetime.datetime]
+    #: The naive datetime (local timezone) the tests were run
+    timestamp_naive: Optional[datetime.datetime]
     #: The number of tests
     tests: Optional[int]
     #: The number of tests passed
@@ -90,6 +114,7 @@ class Summary:
         build_status_str: str,
         task_status_str: str,
         result_str: str,
+        timestamp: Optional[datetime.datetime],
         passed: Optional[int],
         failures: Optional[int],
         errors: Optional[int],
@@ -99,6 +124,7 @@ class Summary:
         self.build_status_str = build_status_str
         self.task_status_str = task_status_str
         self.result_str = result_str
+        self.timestamp = timestamp
         self.passed = passed
         self.failures = failures
         self.errors = errors
@@ -109,6 +135,14 @@ class Summary:
         self.status_str = self.decide_status_str(
             self.build_status_str, self.task_status_str, self.result_str
         )
+        if timestamp is not None:
+            self.timestamp_local = timestamp.astimezone(LOCAL_TIMEZONE)
+        else:
+            self.timestamp_local = None
+        if self.timestamp_local is not None:
+            self.timestamp_naive = self.timestamp_local.replace(tzinfo=None)
+        else:
+            self.timestamp_naive = None
         self.tests = self.decide_tests(
             self.passed, self.failures, self.errors, self.skipped
         )
@@ -210,19 +244,23 @@ class Summary:
             task_status_str = None
         result_str = line_parts[3]
         if len(line_parts) > 4:
-            passed = int(line_parts[4])
+            timestamp = datetime.datetime.fromisoformat(line_parts[4])
+        else:
+            timestamp = None
+        if len(line_parts) > 5:
+            passed = int(line_parts[5])
         else:
             passed = None
-        if len(line_parts) > 5:
-            failures = int(line_parts[5])
+        if len(line_parts) > 6:
+            failures = int(line_parts[6])
         else:
             failures = None
-        if len(line_parts) > 6:
-            errors = int(line_parts[6])
+        if len(line_parts) > 7:
+            errors = int(line_parts[7])
         else:
             errors = None
-        if len(line_parts) > 7:
-            skipped = int(line_parts[7])
+        if len(line_parts) > 8:
+            skipped = int(line_parts[8])
         else:
             skipped = None
 
@@ -231,6 +269,7 @@ class Summary:
             build_status_str=build_status_str,
             task_status_str=task_status_str,
             result_str=result_str,
+            timestamp=timestamp,
             passed=passed,
             failures=failures,
             errors=errors,
@@ -301,6 +340,7 @@ if __name__ == "__main__":
         "datetime_str": datetime.datetime.now().strftime("%b %d, %Y, %l:%M:%S %p"),
         "project_table": summary_list,
         "project_table_row_count": len(summary_list),
+        "local_timezone": shortage_timezorn(LOCAL_TIMEZONE),
         "status_frequency": collections.Counter(
             map(lambda s: s.status_str, summary_list)
         ),

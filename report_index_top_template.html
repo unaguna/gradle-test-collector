@@ -65,25 +65,32 @@
             padding-top: 0;
             padding-bottom: 0;
         }
-        .summary_table__project_name_cell {
+        .summary_table__field--hide {
+            display: none;
+        }
+        .summary_table__field_project_name {
             min-width: 8em;
         }
-        .summary_table__project_name_cell a {
+        .summary_table__field_project_name a {
             color: unset;
             text-decoration: none;
         }
-        .summary_table__project_name_cell a:hover {
+        .summary_table__field_project_name a:hover {
             text-decoration: underline;
         }
-        .summary_table__status_cell {
+        .summary_table__field_status {
             padding: 0 0.25em;
             width: 7em;
         }
-        .summary_table__numeric_cell {
+        .summary_table__field_timestamp {
+            padding: 0 0.25em;
+            width: 12em;
+        }
+        .summary_table__field_numeric {
             padding: 0 0.25em;
             width: 4em;
         }
-        td.summary_table__numeric_cell {
+        td.summary_table__field_numeric {
             text-align: right;
         }
         #footer, #footer a {
@@ -94,6 +101,7 @@
             white-space: nowrap;
         }
         .sidebar__area {
+            width: 12em;
             margin-left: 1rem;
         }
         .sidebar__area h2 {
@@ -101,13 +109,27 @@
             font-weight: bold;
             margin: 0;
         }
-        .sidebar__filter {
-            border: #444 1px solid;
-            border-radius: 1em;
-            padding: 1em;
+        .sidebar__inner_area {
             position: sticky;
             position: -webkit-sticky;
             top: 1rem;
+        }
+        .sidebar__item {
+            border: #444 1px solid;
+            border-radius: 1em;
+            padding: 1em;
+            margin-bottom: 1em;
+        }
+        .sidebar__item_body--hide {
+            display: none;
+        }
+        .sidebar__hide_item_button {
+            cursor: pointer;
+            color: #888;
+            float: right;
+        }
+        .sidebar__hide_item_button--hide {
+            display: none;
         }
         ul.filter__status_list {
             list-style-type: none;
@@ -123,14 +145,90 @@
         .filter__status_frequency {
             font-size: 0.7em;
         }
+        ul.field_selector__field_list {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+        ul.field_selector__field_list li {
+            white-space: nowrap;
+        }
     </style>
     <script type="text/javascript">
+        function applySidebarFolder(buttonId, isOpen) {
+            const button = document.getElementById(buttonId);
+            const targetClass = button.dataset.target;
+            const targetList = document.getElementsByClassName(targetClass);
+
+            const buttonOpenList = button.getElementsByClassName("sidebar__hide_item_button_open");
+            const buttonCloseList = button.getElementsByClassName("sidebar__hide_item_button_close");
+
+            if(isOpen) {
+                for(let target of targetList) {
+                        target.classList.remove("sidebar__item_body--hide");
+                }
+                for(let buttonClose of buttonCloseList) {
+                    buttonClose.classList.remove("sidebar__hide_item_button--hide");
+                }
+                for(let buttonOpen of buttonOpenList) {
+                    buttonOpen.classList.add("sidebar__hide_item_button--hide");
+                }
+            } else {
+                for(let target of targetList) {
+                    target.classList.add("sidebar__item_body--hide");
+                }
+                for(let buttonClose of buttonCloseList) {
+                    buttonClose.classList.add("sidebar__hide_item_button--hide");
+                }
+                for(let buttonOpen of buttonOpenList) {
+                    buttonOpen.classList.remove("sidebar__hide_item_button--hide");
+                }
+            }
+        }
+
+        /**
+         * Change the table display state
+         * 
+         * @param {string} fieldName Field to change the display status
+         * @param {boolean} isShown If it is `true`, the specified field is shown. Otherwise, not.
+         */
+        function applyFieldSelector(fieldName, isShown) {
+            const columnClassName = `summary_table__field_${fieldName}`;
+            for(let column of document.getElementsByClassName(columnClassName)) {
+                if(isShown) {
+                    column.classList.remove("summary_table__field--hide");
+                } else {
+                    column.classList.add("summary_table__field--hide");
+                }
+            }
+        }
+
         window.onload = function() {
             // Add onclick event to block elements
             for(let e of document.getElementsByClassName("clickable")) {
                 e.onclick = function() {
                     window.location = e.dataset.href;
                 };
+            }
+
+            // Add onclick event to the folder button of sidebar
+            for(const button of document.getElementsByClassName("sidebar__hide_item_button")) {
+                const buttonOpenList = button.getElementsByClassName("sidebar__hide_item_button_open");
+                const buttonCloseList = button.getElementsByClassName("sidebar__hide_item_button_close");
+
+                for(const buttonClose of buttonCloseList) {
+                    buttonClose.onclick = function(event) {
+                        applySidebarFolder(button.id, false);
+                    };
+                }
+                for(const buttonOpen of buttonOpenList) {
+                    buttonOpen.onclick = function(event) {
+                        applySidebarFolder(button.id, true);
+                    };
+                }
+
+                // Initialize state
+                applySidebarFolder(button.id, true);
             }
 
             // Add onchange event to the checkboxes for filtering
@@ -149,6 +247,15 @@
                 // To prevent the previous state from being carried over when reloading.
                 e.checked = true;
             }
+
+            // Add onchange event to the checkboxes for field selector
+            for(const e of document.getElementsByClassName("field_selector__field_checkbox")) {
+                e.onclick = function(event) {
+                    applyFieldSelector(e.dataset.field, e.checked);
+                };
+                // Synchronize the table display state with the checkbox state.
+                applyFieldSelector(e.dataset.field, e.checked);
+            }
         };
     </script>
     <title>Test Summary</title>
@@ -159,13 +266,14 @@
             <table class="summary_table__table">
                 <thead>
                     <tr>
-                        <th class="summary_table__project_name_cell">Sub-project</th>
-                        <th class="summary_table__status_cell">Status</th>
-                        <th class="summary_table__numeric_cell">passed</th>
-                        <th class="summary_table__numeric_cell">failures</th>
-                        <th class="summary_table__numeric_cell">errors</th>
-                        <th class="summary_table__numeric_cell">skipped</th>
-                        <th class="summary_table__numeric_cell">total</th>
+                        <th class="summary_table__field_project_name">Sub-project</th>
+                        <th class="summary_table__field_status">Status</th>
+                        <th class="summary_table__field_timestamp">Timestamp {{#local_timezone}}({{local_timezone}}){{/local_timezone}}</th>
+                        <th class="summary_table__field_numeric">passed</th>
+                        <th class="summary_table__field_numeric">failures</th>
+                        <th class="summary_table__field_numeric">errors</th>
+                        <th class="summary_table__field_numeric">skipped</th>
+                        <th class="summary_table__field_numeric">total</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -181,7 +289,7 @@
                             {{/is_effective}}
                         ">
                         <td class="
-                                summary_table__project_name_cell
+                                summary_table__field_project_name
                                 {{#is_effective}}
                                 clickable
                                 {{/is_effective}}
@@ -189,44 +297,48 @@
                             data-href="./{{project_name_esc}}/index.html">
                             {{project_name}}
                         </td>
-                        <td class="summary_table__status_cell">
+                        <td class="summary_table__field_status">
                             {{status_str}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_timestamp">
+                            {{timestamp_naive}}
+                        </td>
+                        <td class="summary_table__field_numeric">
                             {{passed}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{failures}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{errors}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{skipped}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{tests}}
                         </td>
                     </tr>
                     {{/project_table}}
                     <tr class="summary_table__total_row">
-                        <td class="summary_table__project_name_cell">
+                        <td class="summary_table__field_project_name">
                             TOTAL ({{project_table_row_count}})
                         </td>
-                        <td class="summary_table__status_cell"></td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_status"></td>
+                        <td class="summary_table__field_timestamp"></td>
+                        <td class="summary_table__field_numeric">
                             {{total.passed}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.failures}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.errors}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.skipped}}
                         </td>
-                        <td class="summary_table__numeric_cell">
+                        <td class="summary_table__field_numeric">
                             {{total.tests}}
                         </td>
                     </tr>
@@ -243,120 +355,147 @@
             </div>
         </div>
         <div class="sidebar__area">
-            <div class="sidebar__filter filter__container">
-                <h2>Filter</h2>
-                <ul class="filter__status_list">
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="passed" checked
-                            {{^status_frequency.passed}}
-                            disabled
-                            {{/status_frequency.passed}}
-                            >
-                            <span>passed</span>
-                            <span class="filter__status_frequency">({{status_frequency.passed}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="ignored" checked
-                            {{^status_frequency.ignored}}
-                            disabled
-                            {{/status_frequency.ignored}}
-                            >
-                            <span>ignored</span>
-                            <span class="filter__status_frequency">({{status_frequency.ignored}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="failed" checked
-                            {{^status_frequency.failed}}
-                            disabled
-                            {{/status_frequency.failed}}
-                            >
-                            <span>failed</span>
-                            <span class="filter__status_frequency">({{status_frequency.failed}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="ERROR" checked
-                            {{^status_frequency.ERROR}}
-                            disabled
-                            {{/status_frequency.ERROR}}
-                            >
-                            <span>ERROR</span>
-                            <span class="filter__status_frequency">({{status_frequency.ERROR}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked
-                            {{^status_frequency.NO-TESTS}}
-                            disabled
-                            {{/status_frequency.NO-TESTS}}
-                            >
-                            <span>NO-TESTS</span>
-                            <span class="filter__status_frequency">({{status_frequency.NO-TESTS}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-SOURCE" checked
-                            {{^status_frequency.NO-SOURCE}}
-                            disabled
-                            {{/status_frequency.NO-SOURCE}}
-                            >
-                            <span>NO-SOURCE</span>
-                            <span class="filter__status_frequency">({{status_frequency.NO-SOURCE}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="SKIPPED" checked
-                            {{^status_frequency.SKIPPED}}
-                            disabled
-                            {{/status_frequency.SKIPPED}}
-                            >
-                            <span>SKIPPED</span>
-                            <span class="filter__status_frequency">({{status_frequency.SKIPPED}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-RESULT" checked
-                            {{^status_frequency.NO-RESULT}}
-                            disabled
-                            {{/status_frequency.NO-RESULT}}
-                            >
-                            <span>NO-RESULT</span>
-                            <span class="filter__status_frequency">({{status_frequency.NO-RESULT}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked
-                            {{^status_frequency.NO-TASK}}
-                            disabled
-                            {{/status_frequency.NO-TASK}}
-                            >
-                            <span>NO-TASK</span>
-                            <span class="filter__status_frequency">({{status_frequency.NO-TASK}})</span>
-                        </label>
-                    </li>
-                    <li>
-                        <label>
-                            <input type="checkbox" class="filter__status_checkbox" data-condition="GO" checked
-                            {{^status_frequency.GO}}
-                            disabled
-                            {{/status_frequency.GO}}
-                            >
-                            <span>GO</span>
-                            <span class="filter__status_frequency">({{status_frequency.GO}})</span>
-                        </label>
-                    </li>
-                </ul>
+            <div class="sidebar__inner_area">
+                <div class="sidebar__item sidebar__filter filter__container">
+                    <div id="filterFolderButton" class="sidebar__hide_item_button" data-target="filter__status_list">
+                        <div class="sidebar__hide_item_button_open">▲</div>
+                        <div class="sidebar__hide_item_button_close">▼</div>
+                    </div>
+                    <h2>Filter</h2>
+                    <ul class="filter__status_list">
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="passed" checked
+                                {{^status_frequency.passed}}
+                                disabled
+                                {{/status_frequency.passed}}
+                                >
+                                <span>passed</span>
+                                <span class="filter__status_frequency">({{status_frequency.passed}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="ignored" checked
+                                {{^status_frequency.ignored}}
+                                disabled
+                                {{/status_frequency.ignored}}
+                                >
+                                <span>ignored</span>
+                                <span class="filter__status_frequency">({{status_frequency.ignored}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="failed" checked
+                                {{^status_frequency.failed}}
+                                disabled
+                                {{/status_frequency.failed}}
+                                >
+                                <span>failed</span>
+                                <span class="filter__status_frequency">({{status_frequency.failed}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="ERROR" checked
+                                {{^status_frequency.ERROR}}
+                                disabled
+                                {{/status_frequency.ERROR}}
+                                >
+                                <span>ERROR</span>
+                                <span class="filter__status_frequency">({{status_frequency.ERROR}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TESTS" checked
+                                {{^status_frequency.NO-TESTS}}
+                                disabled
+                                {{/status_frequency.NO-TESTS}}
+                                >
+                                <span>NO-TESTS</span>
+                                <span class="filter__status_frequency">({{status_frequency.NO-TESTS}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="NO-SOURCE" checked
+                                {{^status_frequency.NO-SOURCE}}
+                                disabled
+                                {{/status_frequency.NO-SOURCE}}
+                                >
+                                <span>NO-SOURCE</span>
+                                <span class="filter__status_frequency">({{status_frequency.NO-SOURCE}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="SKIPPED" checked
+                                {{^status_frequency.SKIPPED}}
+                                disabled
+                                {{/status_frequency.SKIPPED}}
+                                >
+                                <span>SKIPPED</span>
+                                <span class="filter__status_frequency">({{status_frequency.SKIPPED}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="NO-RESULT" checked
+                                {{^status_frequency.NO-RESULT}}
+                                disabled
+                                {{/status_frequency.NO-RESULT}}
+                                >
+                                <span>NO-RESULT</span>
+                                <span class="filter__status_frequency">({{status_frequency.NO-RESULT}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="NO-TASK" checked
+                                {{^status_frequency.NO-TASK}}
+                                disabled
+                                {{/status_frequency.NO-TASK}}
+                                >
+                                <span>NO-TASK</span>
+                                <span class="filter__status_frequency">({{status_frequency.NO-TASK}})</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="filter__status_checkbox" data-condition="GO" checked
+                                {{^status_frequency.GO}}
+                                disabled
+                                {{/status_frequency.GO}}
+                                >
+                                <span>GO</span>
+                                <span class="filter__status_frequency">({{status_frequency.GO}})</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
+                <div class="sidebar__item sidebar__field_selector field_selector__container">
+                    <div id="fieldSelectorFolderButton" class="sidebar__hide_item_button" data-target="field_selector__field_list">
+                        <div class="sidebar__hide_item_button_open">▲</div>
+                        <div class="sidebar__hide_item_button_close">▼</div>
+                    </div>
+                    <h2>Field Selector</h2>
+                    <ul class="field_selector__field_list">
+                        <li>
+                            <label>
+                                <input type="checkbox" class="field_selector__field_checkbox" data-field="status" checked />
+                                <span>Status</span>
+                            </label>
+                        </li>
+                        <li>
+                            <label>
+                                <input type="checkbox" class="field_selector__field_checkbox" data-field="timestamp" />
+                                <span>Timestamp</span>
+                            </label>
+                        </li>
+                    </ul>
+                </div>
             </div>
         </div>
     </div>
