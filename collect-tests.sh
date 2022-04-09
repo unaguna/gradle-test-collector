@@ -50,20 +50,20 @@ source "$SCRIPT_DIR/libs/ana-gradle.sh"
 ################################################################################
 
 function usage_exit () {
-    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests|--skip-tests] <main_project_directory>" 1>&2
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--run-only-updated|--skip-tests] <main_project_directory>" 1>&2
     exit "$1"
 }
 
 function echo_help () {
     echo "$GRADLE_TEST_COLLECTOR_APP_NAME $GRADLE_TEST_COLLECTOR_VERSION"
     echo ""
-    echo "Usage:" "$(basename "$0") -d <output_directory> [--rerun-tests|--skip-tests] <main_project_directory>"
+    echo "Usage:" "$(basename "$0") -d <output_directory> [--run-only-updated|--skip-tests] <main_project_directory>"
     echo ""
     echo "Options"
     echo "    -d <output_directory> :"
     echo "         (Required) Path of the directory where the results will be output."
-    echo "    --rerun-tests :"
-    echo "         If it is specified, tests that have already been run are also rerun."
+    echo "    --run-only-updated :"
+    echo "         If it is specified, tests that have already been run are NOT rerun."
     echo "    --skip-tests :"
     echo "         If it is specified, tests are not ran and the results of tests that"
     echo "         have already been run are collected."
