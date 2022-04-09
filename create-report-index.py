@@ -28,6 +28,9 @@ TOOL_URL = os.environ.get("GRADLE_TEST_COLLECTOR_URL")
 # The version number of this tool
 TOOL_VERSION = os.environ.get("GRADLE_TEST_COLLECTOR_VERSION")
 
+# The local timezone
+LOCAL_TIMEZONE = datetime.datetime.now().astimezone().tzinfo
+
 
 def dfor(value, default):
     """null coalescing operator
@@ -73,8 +76,12 @@ class Summary:
     result_str: str
     #: Whether this record is effective. If no tests are included, this record is not effective.
     is_effective: bool
-    #: The datetime the tests were run
+    #: The aware datetime (UTC) the tests were run
     timestamp: Optional[datetime.datetime]
+    #: The aware datetime (local timezone) the tests were run
+    timestamp_local: Optional[datetime.datetime]
+    #: The naive datetime (local timezone) the tests were run
+    timestamp_naive: Optional[datetime.datetime]
     #: The number of tests
     tests: Optional[int]
     #: The number of tests passed
@@ -113,6 +120,14 @@ class Summary:
         self.status_str = self.decide_status_str(
             self.build_status_str, self.task_status_str, self.result_str
         )
+        if timestamp is not None:
+            self.timestamp_local = timestamp.astimezone(LOCAL_TIMEZONE)
+        else:
+            self.timestamp_local = None
+        if self.timestamp_local is not None:
+            self.timestamp_naive = self.timestamp_local.replace(tzinfo=None)
+        else:
+            self.timestamp_naive = None
         self.tests = self.decide_tests(
             self.passed, self.failures, self.errors, self.skipped
         )
