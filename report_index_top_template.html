@@ -119,6 +119,17 @@
             padding: 1em;
             margin-bottom: 1em;
         }
+        .sidebar__item_body--hide {
+            display: none;
+        }
+        .sidebar__hide_item_button {
+            cursor: pointer;
+            color: #888;
+            float: right;
+        }
+        .sidebar__hide_item_button--hide {
+            display: none;
+        }
         ul.filter__status_list {
             list-style-type: none;
             margin: 0;
@@ -143,6 +154,37 @@
         }
     </style>
     <script type="text/javascript">
+        function applySidebarFolder(buttonId, isOpen) {
+            const button = document.getElementById(buttonId);
+            const targetClass = button.dataset.target;
+            const targetList = document.getElementsByClassName(targetClass);
+
+            const buttonOpenList = button.getElementsByClassName("sidebar__hide_item_button_open");
+            const buttonCloseList = button.getElementsByClassName("sidebar__hide_item_button_close");
+
+            if(isOpen) {
+                for(let target of targetList) {
+                        target.classList.remove("sidebar__item_body--hide");
+                }
+                for(let buttonClose of buttonCloseList) {
+                    buttonClose.classList.remove("sidebar__hide_item_button--hide");
+                }
+                for(let buttonOpen of buttonOpenList) {
+                    buttonOpen.classList.add("sidebar__hide_item_button--hide");
+                }
+            } else {
+                for(let target of targetList) {
+                    target.classList.add("sidebar__item_body--hide");
+                }
+                for(let buttonClose of buttonCloseList) {
+                    buttonClose.classList.add("sidebar__hide_item_button--hide");
+                }
+                for(let buttonOpen of buttonOpenList) {
+                    buttonOpen.classList.remove("sidebar__hide_item_button--hide");
+                }
+            }
+        }
+
         /**
          * Change the table display state
          * 
@@ -166,6 +208,26 @@
                 e.onclick = function() {
                     window.location = e.dataset.href;
                 };
+            }
+
+            // Add onclick event to the folder button of sidebar
+            for(const button of document.getElementsByClassName("sidebar__hide_item_button")) {
+                const buttonOpenList = button.getElementsByClassName("sidebar__hide_item_button_open");
+                const buttonCloseList = button.getElementsByClassName("sidebar__hide_item_button_close");
+
+                for(const buttonClose of buttonCloseList) {
+                    buttonClose.onclick = function(event) {
+                        applySidebarFolder(button.id, false);
+                    };
+                }
+                for(const buttonOpen of buttonOpenList) {
+                    buttonOpen.onclick = function(event) {
+                        applySidebarFolder(button.id, true);
+                    };
+                }
+
+                // Initialize state
+                applySidebarFolder(button.id, true);
             }
 
             // Add onchange event to the checkboxes for filtering
@@ -294,6 +356,10 @@
         <div class="sidebar__area">
             <div class="sidebar__inner_area">
                 <div class="sidebar__item sidebar__filter filter__container">
+                    <div id="filterFolderButton" class="sidebar__hide_item_button" data-target="filter__status_list">
+                        <div class="sidebar__hide_item_button_open">▲</div>
+                        <div class="sidebar__hide_item_button_close">▼</div>
+                    </div>
                     <h2>Filter</h2>
                     <ul class="filter__status_list">
                         <li>
@@ -409,6 +475,10 @@
                     </ul>
                 </div>
                 <div class="sidebar__item sidebar__field_selector field_selector__container">
+                    <div id="fieldSelectorFolderButton" class="sidebar__hide_item_button" data-target="field_selector__field_list">
+                        <div class="sidebar__hide_item_button_open">▲</div>
+                        <div class="sidebar__hide_item_button_close">▼</div>
+                    </div>
                     <h2>Field Selector</h2>
                     <ul class="field_selector__field_list">
                         <li>
