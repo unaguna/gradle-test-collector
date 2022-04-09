@@ -315,7 +315,11 @@ else
         # Even if the build.gradle file exists, 
         # ignore it if the test task of this module does not exists
         if ! task_exists "$project_name:test" "$tmp_tasks_path"; then
-            echo_info "'$task_name' is skipped; the project '$project_name' doesn't have a task 'test'."
+            if [ -z "$project_name" ]; then
+                echo_info "'$task_name' is skipped; the root project doesn't have a task 'test'."
+            else
+                echo_info "'$task_name' is skipped; the project '$project_name' doesn't have a task 'test'."
+            fi
             continue
         fi
 
