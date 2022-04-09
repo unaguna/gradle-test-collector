@@ -4,8 +4,9 @@
 """
 
 from collections import namedtuple
+import datetime as dt
 import sys
-from typing import Sequence
+from typing import Optional, Sequence
 from xml.etree import ElementTree
 
 
@@ -15,6 +16,8 @@ Args = namedtuple("Args", ["test_xml_list"])
 class TestSummary:
     """Test summary of tests of one sub-project."""
 
+    #: The datetime the tests were run
+    timestamp: Optional[dt.datetime]
     #: The number of tests
     tests: int
     #: The number of tests passed
@@ -26,8 +29,16 @@ class TestSummary:
     #: The number of tests skipped
     skipped: int
 
-    def __init__(self, tests: int, failures: int, errors: int, skipped: int):
+    def __init__(
+        self,
+        timestamp: Optional[dt.datetime],
+        tests: int,
+        failures: int,
+        errors: int,
+        skipped: int,
+    ):
         self.tests = tests
+        self.timestamp = timestamp
         self.passed = tests - failures - errors - skipped
         self.failures = failures
         self.errors = errors
@@ -37,7 +48,16 @@ class TestSummary:
         if not isinstance(other, TestSummary):
             return NotImplemented
 
+        timestamp: Optional[dt.datetime]
+        if self.timestamp is None:
+            timestamp = other.timestamp
+        elif other.timestamp is None:
+            timestamp = self.timestamp
+        else:
+            timestamp = min(self.timestamp, other.timestamp)
+
         return TestSummary(
+            timestamp,
             self.tests + other.tests,
             self.failures + other.failures,
             self.errors + other.errors,
@@ -66,7 +86,7 @@ class TestSummary:
         Returns:
             TestSummary: Zero element
         """
-        return TestSummary(0, 0, 0, 0)
+        return TestSummary(None, 0, 0, 0, 0)
 
 
 def analyze_arguments(args: Sequence[str]) -> Args:
@@ -95,12 +115,13 @@ def load_summary(xml_path: str) -> TestSummary:
     if testsuite is None:
         raise Exception(f"<testsuite> is not found in the xml: {args}")
 
+    timestamp = dt.datetime.fromisoformat(testsuite.attrib["timestamp"])
     tests = int(testsuite.attrib["tests"])
     skipped = int(testsuite.attrib["skipped"])
     failures = int(testsuite.attrib["failures"])
     errors = int(testsuite.attrib["errors"])
 
-    summary = TestSummary(tests, failures, errors, skipped)
+    summary = TestSummary(timestamp, tests, failures, errors, skipped)
     return summary
 
 
@@ -111,6 +132,7 @@ if __name__ == "__main__":
 
     print(
         summary.result(),
+        summary.timestamp.isoformat(),
         summary.passed,
         summary.failures,
         summary.errors,

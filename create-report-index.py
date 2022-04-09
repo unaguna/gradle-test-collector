@@ -209,20 +209,20 @@ class Summary:
         if task_status_str.lower() == "null":
             task_status_str = None
         result_str = line_parts[3]
-        if len(line_parts) > 4:
-            passed = int(line_parts[4])
+        if len(line_parts) > 5:
+            passed = int(line_parts[5])
         else:
             passed = None
-        if len(line_parts) > 5:
-            failures = int(line_parts[5])
+        if len(line_parts) > 6:
+            failures = int(line_parts[6])
         else:
             failures = None
-        if len(line_parts) > 6:
-            errors = int(line_parts[6])
+        if len(line_parts) > 7:
+            errors = int(line_parts[7])
         else:
             errors = None
-        if len(line_parts) > 7:
-            skipped = int(line_parts[7])
+        if len(line_parts) > 8:
+            skipped = int(line_parts[8])
         else:
             skipped = None
 
