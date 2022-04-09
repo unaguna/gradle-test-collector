@@ -295,7 +295,7 @@ echo_info "Loading task list"
 ./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
 
 # Disable UP-TO-DATE
-if [ "$run_only_updated_flg" -ne 0 ]; then
+if [ "$run_only_updated_flg" -ne 0 ] && [ "$skip_tests_flg" -ne 0 ]; then
     echo_info "Deleting the cache of test result"
     ./gradlew cleanTest < /dev/null >> /dev/null
 fi
