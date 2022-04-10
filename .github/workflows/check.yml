@@ -40,5 +40,11 @@ jobs:
           distribution: 'temurin'
           cache: 'gradle'
 
+      - name: Build
+        run: ./build.sh
+
       - name: Run collect-tests.sh
-        run: ./collect-tests.sh -d result $GITHUB_WORKSPACE/gradle-example
+        run: |
+          cd build/release
+          tar -xzf $(ls -1 | head -n 1)
+          ./collect-tests.sh -d result $GITHUB_WORKSPACE/gradle-example

@@ -13,17 +13,16 @@
 
 ## Usage Example
 
-1. Clone this repository
+1. Download a release file `gradle-test-collector.x.x.x.tgz` from [here](https://github.com/unaguna/gradle-test-collector/releases) and extract it.
 
 1. Run the script `collect-tests.sh`
 
     ```shell
-    ./collect-tests.sh -d result --rerun-tests ~/gradle-project
+    ./collect-tests.sh -d result ~/gradle-project
     ```
 
     Each argument in the above example is treated as follows:
     - **-d** result -- Directory where the results will be output. You can also specify an absolute path.
-    - **--rerun-tests** -- If it is specified, tests that have already been run are also rerun.
     - ~/gradle-project -- The root directory of the gradle project.
 
     If you want to know about other options, please run `./collect-tests.sh --help`
