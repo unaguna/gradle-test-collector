@@ -45,6 +45,6 @@ jobs:
 
       - name: Run collect-tests.sh
         run: |
-          cd release
+          cd build/release
           tar -xzf $(ls -1 | head -n 1)
           ./collect-tests.sh -d result $GITHUB_WORKSPACE/gradle-example
