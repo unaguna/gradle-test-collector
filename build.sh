@@ -58,9 +58,9 @@ readonly PROJECT_DIR="$SCRIPT_DIR"
 
 readonly SRC_DIR="$PROJECT_DIR/src"
 
-readonly DEST_DIR="$PROJECT_DIR/dest"
+readonly DEST_DIR="$PROJECT_DIR/build/dest"
 
-readonly RELEASE_DIR="$PROJECT_DIR/release"
+readonly RELEASE_DIR="$PROJECT_DIR/build/release"
 
 # The version number of this application
 GRADLE_TEST_COLLECTOR_VERSION=$(cat "$PROJECT_DIR/.version")
