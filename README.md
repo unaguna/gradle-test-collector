@@ -13,7 +13,7 @@
 
 ## Usage Example
 
-1. Clone this repository
+1. Download a release file `gradle-test-collector.x.x.x.tgz` from [here](https://github.com/unaguna/gradle-test-collector/releases) and extract it.
 
 1. Run the script `collect-tests.sh`
 

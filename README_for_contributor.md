@@ -24,3 +24,20 @@ This project uses python in some parts. Although python has many variations of i
   - If you use vscode, auto-formatting will runs. Otherwise, write code that conforms to Block in some way.
 
 
+## Release
+
+The release should be a single compressed archive. You get it with the following command.
+
+```shell
+./build.sh
+```
+
+Compressed files are stored in `./build/release`.
+
+### Before release
+
+Prior to release, please check the following. If modifications are necessary, create the branch `release` from `develop` and work on it.
+
+- **version number**: The version number should be written in `./.version`.
+- **README.md**: `./README.md` is a user' s manual. The description must match the current version.
+- **Pull Request**: Releases should be made from the main branch. The release branch must be merged into the develop branch and the develop branch into the main branch. Both will be merged by pull request, using Github Action to verify that they work without abnormal termination.
