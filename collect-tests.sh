@@ -139,11 +139,11 @@ function is_sub_project () {
 # Constant values
 ################################################################################
 
-readonly PRINT_LINE_PY="$SCRIPT_DIR/get-summary.py"
+readonly PRINT_LINE_PY="$SCRIPT_DIR/libs/get-summary.py"
 
-readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/create-report-index.py"
+readonly CREATE_REPORT_INDEX="$SCRIPT_DIR/libs/create-report-index.py"
 
-readonly INIT_GRADLE="$SCRIPT_DIR/init.gradle"
+readonly INIT_GRADLE="$SCRIPT_DIR/libs/init.gradle"
 
 
 ################################################################################
