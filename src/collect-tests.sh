@@ -89,6 +89,24 @@ function echo_err() {
     echo "$SCRIPT_NAME: $*" >&2
 }
 
+# Get absolute path
+#
+# Arguments
+#   $1 - base path
+#   $2 - relative path
+#
+# Standard Output
+#   the absolute path
+function abspath() {
+    local -r base_path=$1
+    local -r relative_path=$2
+
+    abs_dir=$(cd "$base_path"; cd "$(dirname "$relative_path")"; pwd)
+    filename=$(basename "$relative_path")
+    
+    echo "$abs_dir/$filename"
+}
+
 # Output the name of the file to be used as the output destination for stdout of gradle task.
 #
 # Arguments
@@ -217,7 +235,7 @@ readonly main_project_dir="${argv[0]}"
 
 # (Required) Output destination directory path
 if [ -n "${output_dir:-""}" ]; then
-    output_dir=$(cd "$ORIGINAL_PWD"; cd "$(dirname "$output_dir")"; pwd)"/"$(basename "$output_dir")
+    output_dir=$(abspath "$ORIGINAL_PWD" "$output_dir")
     readonly output_dir
 else
     usage_exit 1
