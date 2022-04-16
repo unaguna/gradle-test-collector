@@ -225,6 +225,22 @@ fi
 
 
 ################################################################################
+# Validate arguments
+################################################################################
+
+# The given $output_dir must be an empty directory or nonexistent.
+if [ -e "$output_dir" ]; then
+    if [ ! -d "$output_dir" ]; then
+        echo_err "cannot create output directory '$output_dir': Non-directory file exists"
+        exit 1
+    elif [ -n "$(ls -A1 "$output_dir")" ]; then
+        echo_err "cannot create output directory '$output_dir': Non-empty directory exists"
+        exit 1
+    fi
+fi
+
+
+################################################################################
 # Temporally files
 ################################################################################
 
@@ -273,6 +289,7 @@ readonly output_xml_dir="$output_dir/xml-report"
 
 # create the directory where output
 if [ -n "$output_dir" ]; then
+    # If output_dir already exists, it does not matter if it is empty, so use the -p option to avoid an error.
     mkdir -p "$output_dir"
 fi
 if [ -n "$stdout_dir" ]; then
