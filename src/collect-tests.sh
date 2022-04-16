@@ -6,6 +6,7 @@
 
 set -eu
 set -o pipefail
+set -o posix
 
 set -C
 
