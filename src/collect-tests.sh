@@ -249,6 +249,24 @@ fi
 # Validate arguments
 ################################################################################
 
+# The given $main_project_dir must be a directory and must contain an executable gradlew.
+if [ ! -e "$main_project_dir" ]; then
+    echo_err "gradle project not found in '$main_project_dir': No such directory"
+    exit 1
+elif [ ! -d "$main_project_dir" ]; then
+    echo_err "gradle project not found in '$main_project_dir': It is not directory"
+    exit 1
+elif [ ! -e "$main_project_dir/gradlew" ]; then
+    echo_err "cannot find gradle wrapper '$main_project_dir/gradlew': No such file"
+    exit 1
+elif [ -d "$main_project_dir/gradlew" ]; then
+    echo_err "cannot find gradle wrapper '$main_project_dir/gradlew': It is directory"
+    exit 1
+elif [ ! -x "$main_project_dir/gradlew" ] ; then
+    echo_err "cannot find gradle wrapper '$main_project_dir/gradlew': Non-executable"
+    exit 1
+fi
+
 # The given $output_dir must be an empty directory or nonexistent.
 if [ -e "$output_dir" ]; then
     if [ ! -d "$output_dir" ]; then
