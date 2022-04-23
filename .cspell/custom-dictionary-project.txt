@@ -2,4 +2,6 @@ abspath
 dfor
 prjoutput
 projectlist
+tasklist
+taskoutput
 unaguna
