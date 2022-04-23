@@ -6,6 +6,7 @@
 
 set -eu
 set -o pipefail
+set -o posix
 
 set -C
 
@@ -13,14 +14,46 @@ set -C
 # Script information
 ################################################################################
 
+# Readlink recursively
+# 
+# This can be achieved with `readlink -f` in the GNU command environment,
+# but we implement it independently for mac support.
+#
+# Arguments
+#   $1 - target path
+#
+# Standard Output
+#   the absolute real path
+function itr_readlink() {
+    local target_path=$1
+
+    (
+        cd "$(dirname "$target_path")"
+        target_path=$(basename "$target_path")
+
+        # Iterate down a (possible) chain of symlinks
+        while [ -L "$target_path" ]
+        do
+            target_path=$(readlink "$target_path")
+            cd "$(dirname "$target_path")"
+            target_path=$(basename "$target_path")
+        done
+
+        echo "$(pwd -P)/$target_path"
+    )
+}
+
 # The current directory when this script started.
 ORIGINAL_PWD=$(pwd)
 readonly ORIGINAL_PWD
+# The path of this script file
+SCRIPT_PATH=$(itr_readlink "$0")
+readonly SCRIPT_PATH
 # The directory path of this script file
-SCRIPT_DIR=$(cd "$(dirname "$0")"; pwd)
+SCRIPT_DIR=$(cd "$(dirname "$SCRIPT_PATH")"; pwd)
 readonly SCRIPT_DIR
 # The path of this script file
-SCRIPT_NAME=$(basename "$0")
+SCRIPT_NAME=$(basename "$SCRIPT_PATH")
 readonly SCRIPT_NAME
 
 # The version number of this application
@@ -75,7 +108,7 @@ function echo_help () {
 
 # Output an information
 #
-# Because stdout is used as output of gradlew in this script,
+# Because stdout is used as output of gradle in this script,
 # any messages should be output to stderr.
 function echo_info () {
     echo "$SCRIPT_NAME: $*" >&2
@@ -83,10 +116,28 @@ function echo_info () {
 
 # Output an error
 #
-# Because stdout is used as output of gradlew in this script,
+# Because stdout is used as output of gradle in this script,
 # any messages should be output to stderr.
 function echo_err() {
     echo "$SCRIPT_NAME: $*" >&2
+}
+
+# Get absolute path
+#
+# Arguments
+#   $1 - base path
+#   $2 - relative path
+#
+# Standard Output
+#   the absolute path
+function abspath() {
+    local -r base_path=$1
+    local -r relative_path=$2
+
+    abs_dir=$(cd "$base_path"; cd "$(dirname "$relative_path")"; pwd)
+    filename=$(basename "$relative_path")
+    
+    echo "$abs_dir/$filename"
 }
 
 # Output the name of the file to be used as the output destination for stdout of gradle task.
@@ -151,7 +202,7 @@ readonly INIT_GRADLE="$SCRIPT_DIR/libs/init.gradle"
 ################################################################################
 declare -i argc=0
 declare -a argv=()
-output_dir=
+output_dir_list=()
 run_only_updated_flg=1
 skip_tests_flg=1
 help_flg=1
@@ -165,7 +216,7 @@ while (( $# > 0 )); do
             ;;
         -*)
             if [[ "$1" == '-d' ]]; then
-                output_dir="$2"
+                output_dir_list+=( "$2" )
                 shift
             elif [[ "$1" == "--run-only-updated" ]]; then
                 run_only_updated_flg=0
@@ -216,11 +267,48 @@ fi
 readonly main_project_dir="${argv[0]}"
 
 # (Required) Output destination directory path
-if [ -n "${output_dir:-""}" ]; then
-    output_dir=$(cd "$ORIGINAL_PWD"; cd "$(dirname "$output_dir")"; pwd)"/"$(basename "$output_dir")
-    readonly output_dir
-else
+# it must be given only once; no more once
+if [ "${#output_dir_list[@]}" -ne 1 ] || [ -z "${output_dir_list[0]:-""}" ]; then
     usage_exit 1
+else
+    output_dir="${output_dir_list[0]}"
+    output_dir=$(abspath "$ORIGINAL_PWD" "$output_dir")
+    readonly output_dir
+fi
+
+
+################################################################################
+# Validate arguments
+################################################################################
+
+# The given $main_project_dir must be a directory and must contain an executable gradlew.
+readonly gradle_exe="$main_project_dir/gradlew"
+if [ ! -e "$main_project_dir" ]; then
+    echo_err "gradle project not found in '$main_project_dir': No such directory"
+    exit 1
+elif [ ! -d "$main_project_dir" ]; then
+    echo_err "gradle project not found in '$main_project_dir': It is not directory"
+    exit 1
+elif [ ! -e "$gradle_exe" ]; then
+    echo_err "cannot find gradle wrapper '$gradle_exe': No such file"
+    exit 1
+elif [ -d "$gradle_exe" ]; then
+    echo_err "cannot find gradle wrapper '$gradle_exe': It is directory"
+    exit 1
+elif [ ! -x "$gradle_exe" ] ; then
+    echo_err "cannot find gradle wrapper '$gradle_exe': Non-executable"
+    exit 1
+fi
+
+# The given $output_dir must be an empty directory or nonexistent.
+if [ -e "$output_dir" ]; then
+    if [ ! -d "$output_dir" ]; then
+        echo_err "cannot create output directory '$output_dir': Non-directory file exists"
+        exit 1
+    elif [ -n "$(ls -A1 "$output_dir")" ]; then
+        echo_err "cannot create output directory '$output_dir': Non-empty directory exists"
+        exit 1
+    fi
 fi
 
 
@@ -273,6 +361,7 @@ readonly output_xml_dir="$output_dir/xml-report"
 
 # create the directory where output
 if [ -n "$output_dir" ]; then
+    # If output_dir already exists, it does not matter if it is empty, so use the -p option to avoid an error.
     mkdir -p "$output_dir"
 fi
 if [ -n "$stdout_dir" ]; then
@@ -287,17 +376,17 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-./gradlew projectlist --init-script "$INIT_GRADLE" "-Ptestcollector.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
+"$gradle_exe" projectlist --init-script "$INIT_GRADLE" "-Pjp.unaguna.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
 sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list
 echo_info "Loading task list"
-./gradlew tasks --all < /dev/null | awk -F ' ' '{print $1}' >> "$tmp_tasks_path"
+"$gradle_exe" tasklist --init-script "$INIT_GRADLE" "-Pjp.unaguna.taskoutput=$tmp_tasks_path" < /dev/null > /dev/null
 
 # Disable UP-TO-DATE
 if [ "$run_only_updated_flg" -ne 0 ] && [ "$skip_tests_flg" -ne 0 ]; then
     echo_info "Deleting the cache of test result"
-    ./gradlew cleanTest < /dev/null >> /dev/null
+    "$gradle_exe" cleanTest < /dev/null >> /dev/null
 fi
 
 # Read each build.gradle and run each test.
@@ -330,7 +419,7 @@ else
         set +e
         # To solve the below problem, specify the redirect /dev/null to stdin:
         # https://ja.stackoverflow.com/questions/30942/シェルスクリプト内でgradleを呼ぶとそれ以降の処理がなされない
-        ./gradlew --no-build-cache "$task_name" < /dev/null &> "$output_file"
+        "$gradle_exe" --no-build-cache "$task_name" < /dev/null &> "$output_file"
         set -e
     done < "$tmp_project_list_path"
 fi
@@ -358,7 +447,7 @@ while read -r project_row; do
         continue
     fi
 
-    # get the result of ./gradlew test
+    # get the result of gradle test
     if [ "$skip_tests_flg" -ne 0 ]; then
         build_status=$(build_status "$stdout_file")
         task_status=$(task_status "$project_name:test" "$stdout_file")

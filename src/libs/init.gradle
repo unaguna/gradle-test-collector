@@ -1,9 +1,20 @@
 rootProject {
     task 'projectlist' {
         doFirst {
-            def output = file(getProperty("testcollector.prjoutput"))
+            def output = file(getProperty("jp.unaguna.prjoutput"))
             allprojects {
                 output.append "${project.path} ${projectDir.absolutePath}\n"
+            }
+        }
+    }
+
+    task 'tasklist' {
+        doFirst {
+            def output = file(getProperty("jp.unaguna.taskoutput"))
+            allprojects {
+                tasks.forEach { task ->
+                    output.append "${task.path}\n"
+                }
             }
         }
     }
