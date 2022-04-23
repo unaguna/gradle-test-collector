@@ -376,7 +376,7 @@ fi
 
 # Get sub-projects list
 echo_info "Loading project list"
-"$gradle_exe" projectlist --init-script "$INIT_GRADLE" "-Ptestcollector.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
+"$gradle_exe" projectlist --init-script "$INIT_GRADLE" "-Pjp.unaguna.prjoutput=$tmp_project_list_path" < /dev/null > /dev/null
 sort "$tmp_project_list_path" -o "$tmp_project_list_path"
 
 # get task list
