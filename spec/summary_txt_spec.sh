@@ -45,8 +45,12 @@ Describe 'summary.txt, output of collect-tests.sh,'
     deploy_prj() {
         prj_name="$1"
         target="$2"
-        cp -pr "$SHELLSPEC_PROJECT_ROOT/spec/resources/$prj_name" "$target"
-        cp -prT "$SHELLSPEC_PROJECT_ROOT/spec/resources/prj-base" "$target/$prj_name"
+
+        mkdir "$target/$prj_name"
+        find "$SHELLSPEC_PROJECT_ROOT/spec/resources/prj-base" \
+            "$SHELLSPEC_PROJECT_ROOT/spec/resources/$prj_name" \
+            -mindepth 1 -maxdepth 1 -print0 | \
+        xargs -0 -I {} cp -pr {} "$target/$prj_name"
     }
 
     It 'contains results of all projects'

@@ -1,3 +1,5 @@
+maxdepth
+mindepth
 mktemp
 myprog
 readlink
