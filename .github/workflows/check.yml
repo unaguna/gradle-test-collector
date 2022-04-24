@@ -8,6 +8,27 @@ on:
   workflow_dispatch:
 
 jobs:
+  test:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Install shellspec
+        run: |
+          cd ~
+          wget https://github.com/shellspec/shellspec/releases/download/0.28.1/shellspec-dist.tar.gz
+          tar -xzf shellspec-dist.tar.gz
+          ln -s $(pwd)/shellspec/shellspec /usr/local/bin/shellspec
+          ls -l /usr/local/bin/shellspec
+
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - run: shellspec
+
   check:
     strategy:
       fail-fast: false

@@ -1,2 +1,5 @@
 mktemp
+myprog
 readlink
+setenv
+unsetenv

@@ -1,7 +1,12 @@
 abspath
 dfor
+kcov
+precheck
 prjoutput
 projectlist
+shellspec
+specfile
+specfiles
 tasklist
 taskoutput
 unaguna
