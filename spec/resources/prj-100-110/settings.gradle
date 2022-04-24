@@ -1,0 +1,4 @@
+rootProject.name = 'prj-100-110'
+include 'mod0'
+include 'mod1'
+

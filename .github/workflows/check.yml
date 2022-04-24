@@ -16,6 +16,12 @@ jobs:
     runs-on: ${{ matrix.os }}
 
     steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.1.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Install shellspec
         run: |
           cd ~
@@ -26,6 +32,14 @@ jobs:
 
       - name: Checkout the repository
         uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3.1.0
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
 
       - run: shellspec
 
