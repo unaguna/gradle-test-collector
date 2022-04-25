@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  test:
+  shellspec:
     strategy:
       fail-fast: false
       matrix:
@@ -43,7 +43,7 @@ jobs:
 
       - run: shellspec
 
-  check:
+  run-once:
     strategy:
       fail-fast: false
       matrix:
