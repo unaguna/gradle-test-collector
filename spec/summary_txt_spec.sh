@@ -3,55 +3,10 @@
 set -e
 
 Describe 'summary.txt, output of collect-tests.sh,'
-    BeforeAll 'install'
-    AfterAll 'uninstall'
+    BeforeAll 'install_app'
+    AfterAll 'uninstall_app'
     BeforeEach 'setup'
     AfterEach 'clean'
-    install() {
-        # Build the application
-        ./build.sh
-        cd build/release
-        archive="$(pwd)/$(find . -type f -name '*.tgz' | head -n1)"
-        readonly archive
-
-        # Create temporary directories
-        app_dir=$(mktemp -d)
-        readonly app_dir
-        readonly app_install_dir="$app_dir/exe"
-        readonly app_bin_dir="$app_dir/bin"
-        mkdir "$app_install_dir" "$app_bin_dir"
-
-        # Install the application (1/2)
-        cd "$app_install_dir"
-        tar -xzf "$archive"
-
-        # Install the application (2/2)
-        cd "$app_bin_dir"
-        ln -s "$app_install_dir/collect-tests.sh" .
-        PATH="$app_bin_dir:$PATH"
-        export PATH
-    }
-    uninstall() {
-        rm -Rf "$app_dir"
-    }
-    setup() {
-        tmp_cd=$(mktemp -d)
-        readonly tmp_cd
-        cd "$tmp_cd"
-    }
-    clean() {
-        rm -Rf "$tmp_cd"
-    }
-    deploy_prj() {
-        prj_name="$1"
-        target="$2"
-
-        mkdir "$target/$prj_name"
-        find "$SHELLSPEC_PROJECT_ROOT/spec/resources/prj-base" \
-            "$SHELLSPEC_PROJECT_ROOT/spec/resources/$prj_name" \
-            -mindepth 1 -maxdepth 1 -print0 | \
-        xargs -0 -I {} cp -pr {} "$target/$prj_name"
-    }
 
     It 'contains results of all projects'
         Path summary-file=result/summary.txt
