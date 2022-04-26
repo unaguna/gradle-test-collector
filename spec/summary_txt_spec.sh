@@ -42,7 +42,7 @@ Describe 'summary.txt, output of collect-tests.sh,'
     End
 
     ExampleGroup 'status'
-        Example 'when tests pass'
+        Example 'when all tests pass'
             Path summary-file=result/summary.txt
             project='prj-100-110'
 
@@ -59,7 +59,7 @@ Describe 'summary.txt, output of collect-tests.sh,'
             The word "$FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "passed"
         End
 
-        Example 'when tests fail'
+        Example 'when some tests fail'
             Path summary-file=result/summary.txt
             project='prj-100-110'
 
@@ -74,6 +74,28 @@ Describe 'summary.txt, output of collect-tests.sh,'
             The word "$FIELD_BUILD_STATUS" of line 2 of contents of file summary-file should equal "FAILED"
             The word "$FIELD_TASK_STATUS" of line 2 of contents of file summary-file should equal "FAILED"
             The word "$FIELD_TEST_STATUS" of line 2 of contents of file summary-file should equal "failed"
+        End
+
+        Example 'when some tests are ignored'
+            Path summary-file=result/summary.txt
+            project='prj-101-001'
+
+            deploy_prj "$project" .
+
+            When run collect-tests.sh -d result "$project"
+            The status should equal 0
+            The error should include ':mod0:test'
+            The error should include ':mod1:test'
+
+            The file summary-file should be file
+            The word "$FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+            The word "$FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SUCCESSFUL"
+            The word "$FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
+            The word "$FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "ignored"
+            The word "$FIELD_PROJECT_NAME" of line 2 of contents of file summary-file should equal ":mod1"
+            The word "$FIELD_BUILD_STATUS" of line 2 of contents of file summary-file should equal "SUCCESSFUL"
+            The word "$FIELD_TASK_STATUS" of line 2 of contents of file summary-file should equal "null"
+            The word "$FIELD_TEST_STATUS" of line 2 of contents of file summary-file should equal "ignored"
         End
 
         Example 'when test task is skipped'
