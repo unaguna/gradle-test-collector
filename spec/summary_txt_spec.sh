@@ -6,6 +6,10 @@ set -e
 %const FIELD_BUILD_STATUS: 2
 %const FIELD_TASK_STATUS: 3
 %const FIELD_TEST_STATUS: 4
+%const FIELD_COUNT_PASS: 6
+%const FIELD_COUNT_FAIL: 7
+%const FIELD_COUNT_ERROR: 8
+%const FIELD_COUNT_SKIP: 9
 
 Describe 'summary.txt, output of collect-tests.sh,'
     BeforeAll 'install_app'
@@ -25,16 +29,16 @@ Describe 'summary.txt, output of collect-tests.sh,'
         The error should include ':mod1:test'
 
         The file summary-file should be file
-        The word 1 of line 1 of contents of file summary-file should equal ":mod0"
-        The word 6 of line 1 of contents of file summary-file should equal 4
-        The word 7 of line 1 of contents of file summary-file should equal 3
-        The word 8 of line 1 of contents of file summary-file should equal 0
-        The word 9 of line 1 of contents of file summary-file should equal 1
-        The word 1 of line 2 of contents of file summary-file should equal ":mod1"
-        The word 6 of line 2 of contents of file summary-file should equal 1
-        The word 7 of line 2 of contents of file summary-file should equal 2
-        The word 8 of line 2 of contents of file summary-file should equal 0
-        The word 9 of line 2 of contents of file summary-file should equal 4
+        The word "$FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+        The word "$FIELD_COUNT_PASS" of line 1 of contents of file summary-file should equal 4
+        The word "$FIELD_COUNT_FAIL" of line 1 of contents of file summary-file should equal 3
+        The word "$FIELD_COUNT_ERROR" of line 1 of contents of file summary-file should equal 0
+        The word "$FIELD_COUNT_SKIP" of line 1 of contents of file summary-file should equal 1
+        The word "$FIELD_PROJECT_NAME" of line 2 of contents of file summary-file should equal ":mod1"
+        The word "$FIELD_COUNT_PASS" of line 2 of contents of file summary-file should equal 1
+        The word "$FIELD_COUNT_FAIL" of line 2 of contents of file summary-file should equal 2
+        The word "$FIELD_COUNT_ERROR" of line 2 of contents of file summary-file should equal 0
+        The word "$FIELD_COUNT_SKIP" of line 2 of contents of file summary-file should equal 4
     End
 
     ExampleGroup 'status'
