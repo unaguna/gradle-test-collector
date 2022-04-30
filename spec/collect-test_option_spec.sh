@@ -10,7 +10,7 @@ Describe '--skip-tests;'
 
     Example 'If there is no result of tests and --skip-tests is specified, cannot collect result.'
         Path summary-file=result/summary.txt
-        project='prj-1000-1100'
+        project='prj-1000-1100-brokenCleanTest'
 
         deploy_prj "$project" .
 
@@ -40,7 +40,7 @@ Describe '--skip-tests;'
 
     Example 'If there is already result of tests and --skip-tests is specified, collect existing result.'
         Path summary-file=result/summary.txt
-        project='prj-2000'
+        project='prj-2000-brokenCleanTest'
 
         deploy_prj "$project" .
         (
@@ -79,7 +79,7 @@ Describe '--run-only-updated;'
 
     Example 'If there is no result of tests and --run-only-updated is specified, run tests and collect result.'
         Path summary-file=result/summary.txt
-        project='prj-1000-1100'
+        project='prj-1000-1100-brokenCleanTest'
 
         deploy_prj "$project" .
 
@@ -116,7 +116,7 @@ Describe '--run-only-updated;'
 
     Example 'If there is already result of tests and --run-only-updated is specified, collect existing result.'
         Path summary-file=result/summary.txt
-        project='prj-2000'
+        project='prj-2000-brokenCleanTest'
 
         deploy_prj "$project" .
         (

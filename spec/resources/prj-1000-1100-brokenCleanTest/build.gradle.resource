@@ -9,4 +9,9 @@ allprojects {
     repositories {
         mavenCentral()
     }
+    cleanTest { task ->
+        doFirst {
+            throw new RuntimeException("${task.path} is broken for test")
+        }
+    }
 }
