@@ -23,6 +23,15 @@ spec_helper_configure() {
   : import 'support/custom_matcher'
 }
 
+export SUMMARY_FIELD_PROJECT_NAME=1
+export SUMMARY_FIELD_BUILD_STATUS=2
+export SUMMARY_FIELD_TASK_STATUS=3
+export SUMMARY_FIELD_TEST_STATUS=4
+export SUMMARY_FIELD_COUNT_PASS=6
+export SUMMARY_FIELD_COUNT_FAIL=7
+export SUMMARY_FIELD_COUNT_ERROR=8
+export SUMMARY_FIELD_COUNT_SKIP=9
+
 install_app() {
   # Build the application
   ./build.sh

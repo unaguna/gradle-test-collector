@@ -2,15 +2,6 @@
 
 set -e
 
-%const FIELD_PROJECT_NAME: 1
-%const FIELD_BUILD_STATUS: 2
-%const FIELD_TASK_STATUS: 3
-%const FIELD_TEST_STATUS: 4
-%const FIELD_COUNT_PASS: 6
-%const FIELD_COUNT_FAIL: 7
-%const FIELD_COUNT_ERROR: 8
-%const FIELD_COUNT_SKIP: 9
-
 Describe '--skip-tests;'
     BeforeAll 'install_app'
     AfterAll 'uninstall_app'
@@ -36,14 +27,14 @@ Describe '--skip-tests;'
         The file "result/test-report/__mod1" should not be exist
 
         The file summary-file should be file
-        The word "$FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
-        The word "$FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SKIPPED"
-        The word "$FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
-        The word "$FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "NO-RESULT"
-        The word "$FIELD_PROJECT_NAME" of line 2 of contents of file summary-file should equal ":mod1"
-        The word "$FIELD_BUILD_STATUS" of line 2 of contents of file summary-file should equal "SKIPPED"
-        The word "$FIELD_TASK_STATUS" of line 2 of contents of file summary-file should equal "null"
-        The word "$FIELD_TEST_STATUS" of line 2 of contents of file summary-file should equal "NO-RESULT"
+        The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+        The word "$SUMMARY_FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SKIPPED"
+        The word "$SUMMARY_FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
+        The word "$SUMMARY_FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "NO-RESULT"
+        The word "$SUMMARY_FIELD_PROJECT_NAME" of line 2 of contents of file summary-file should equal ":mod1"
+        The word "$SUMMARY_FIELD_BUILD_STATUS" of line 2 of contents of file summary-file should equal "SKIPPED"
+        The word "$SUMMARY_FIELD_TASK_STATUS" of line 2 of contents of file summary-file should equal "null"
+        The word "$SUMMARY_FIELD_TEST_STATUS" of line 2 of contents of file summary-file should equal "NO-RESULT"
     End
 
     Example 'If there is already result of tests and --skip-tests is specified, collect existing result.'
@@ -67,13 +58,13 @@ Describe '--skip-tests;'
         The file "result/test-report/__mod0/index.html" should be file
 
         The file summary-file should be file
-        The word "$FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
-        The word "$FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SKIPPED"
-        The word "$FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
-        The word "$FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "passed"
-        The word "$FIELD_COUNT_PASS" of line 1 of contents of file summary-file should equal 2
-        The word "$FIELD_COUNT_FAIL" of line 1 of contents of file summary-file should equal 0
-        The word "$FIELD_COUNT_ERROR" of line 1 of contents of file summary-file should equal 0
-        The word "$FIELD_COUNT_SKIP" of line 1 of contents of file summary-file should equal 0
+        The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+        The word "$SUMMARY_FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SKIPPED"
+        The word "$SUMMARY_FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
+        The word "$SUMMARY_FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "passed"
+        The word "$SUMMARY_FIELD_COUNT_PASS" of line 1 of contents of file summary-file should equal 2
+        The word "$SUMMARY_FIELD_COUNT_FAIL" of line 1 of contents of file summary-file should equal 0
+        The word "$SUMMARY_FIELD_COUNT_ERROR" of line 1 of contents of file summary-file should equal 0
+        The word "$SUMMARY_FIELD_COUNT_SKIP" of line 1 of contents of file summary-file should equal 0
     End
 End
