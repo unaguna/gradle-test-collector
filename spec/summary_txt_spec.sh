@@ -44,7 +44,7 @@ Describe 'summary.txt, output of collect-tests.sh,'
     ExampleGroup 'status'
         Example 'when all tests pass'
             Path summary-file=result/summary.txt
-            project='prj-100-110'
+            project='prj-1000-1100'
 
             deploy_prj "$project" .
 
@@ -61,7 +61,7 @@ Describe 'summary.txt, output of collect-tests.sh,'
 
         Example 'when some tests fail'
             Path summary-file=result/summary.txt
-            project='prj-100-110'
+            project='prj-1000-1100'
 
             deploy_prj "$project" .
 
@@ -78,7 +78,7 @@ Describe 'summary.txt, output of collect-tests.sh,'
 
         Example 'when some tests are ignored'
             Path summary-file=result/summary.txt
-            project='prj-101-001'
+            project='prj-1001-0001'
 
             deploy_prj "$project" .
 

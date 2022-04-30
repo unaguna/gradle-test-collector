@@ -19,7 +19,7 @@ Describe '--skip-tests;'
 
     Example 'If there is no result of tests and --skip-tests is specified, cannot collect result.'
         Path summary-file=result/summary.txt
-        project='prj-100-110'
+        project='prj-1000-1100'
 
         deploy_prj "$project" .
 
@@ -48,7 +48,7 @@ Describe '--skip-tests;'
 
     Example 'If there is already result of tests and --skip-tests is specified, collect existing result.'
         Path summary-file=result/summary.txt
-        project='prj-200'
+        project='prj-2000'
 
         deploy_prj "$project" .
         (
