@@ -1,5 +1,9 @@
 {
     "files.eol": "\n",
+    "files.associations": {
+        "*.gradle.kts.resource": "kotlinscript",
+        "*.gradle.resource": "groovy",
+    },
     "cSpell.customDictionaries": {
         "custom-dictionary-linux": {
             "name": "custom-dictionary-linux",
