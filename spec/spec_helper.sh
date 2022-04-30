@@ -77,4 +77,7 @@ deploy_prj() {
     "$SHELLSPEC_PROJECT_ROOT/spec/resources/$prj_name" \
     -mindepth 1 -maxdepth 1 -print0 | \
   xargs -0 -I {} cp -pr {} "$target/$prj_name"
+
+  # rename resource files
+  find "$target/$prj_name" -name '*.resource' | sed 'p;s/.resource$//' | xargs -n 2 mv
 }
