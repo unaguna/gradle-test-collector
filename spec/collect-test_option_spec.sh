@@ -90,7 +90,8 @@ Describe '--run-only-updated;'
         The error should include ':mod1:test'
 
         The file "result/stdout" should not be empty directory
-        The file "result/xml-report" should not be empty directory
+        The file "result/xml-report/__mod0.tgz" should be file
+        The file "result/xml-report/__mod1.tgz" should be file
         The file "result/test-report/index.html" should be file
         The file "result/test-report/__mod0/index.html" should be exist
         The file "result/test-report/__mod1/index.html" should be exist
@@ -124,17 +125,26 @@ Describe '--run-only-updated;'
             ./gradlew build < /dev/null > /dev/null 2>&1
         )
 
+        # To ensure that if the test is accidentally executed again,
+        # the execution time (in seconds) will be different from the previous time.
+        %sleep 1
+
+        # Keep the results that already exist for comparison.
+        cp -p "$project/mod0/build/reports/tests/test/index.html" "index.html.old"
+
         When run collect-tests.sh --run-only-updated -d result "$project"
         The status should equal 0
         The error should not include 'Deleting the cache of test result'
         The error should include ':mod0:test'
 
         The file "result/stdout" should not be empty directory
-        The file "result/xml-report" should not be empty directory
+        The file "result/xml-report/__mod0.tgz" should be file
         The file "result/test-report/index.html" should be file
         The file "result/test-report/__mod0/index.html" should be exist
 
-        # TODO: 収集したレポートが collect-tests.sh 実行前から存在していたものであることを確認する
+        # If no retests have been done in the collect-tests,
+        # there should be no difference in the timestamps listed in the reports.
+        Assert test -z "$(diff "result/test-report/__mod0/index.html" "index.html.old")"
 
         The file summary-file should be file
         The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
