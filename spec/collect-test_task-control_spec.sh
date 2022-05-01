@@ -2,6 +2,55 @@
 
 set -e
 
+Describe 'collect-tests.sh'
+    BeforeAll 'install_app'
+    AfterAll 'uninstall_app'
+    BeforeEach 'setup'
+    AfterEach 'clean'
+
+    It 'runs test task even if there are already the result of tests'
+        Path summary-file=result/summary.txt
+        project='prj-2000-selfAssertiveCleanTest'
+
+        deploy_prj "$project" .
+        (
+            cd "$project"
+            ./gradlew build < /dev/null > /dev/null 2>&1
+        )
+
+        # To ensure that if the test is accidentally executed again,
+        # the execution time (in seconds) will be different from the previous time.
+        %sleep 1
+
+        # Keep the results that already exist for comparison.
+        cp -p "$project/mod0/build/reports/tests/test/index.html" "index.html.old"
+
+        When run collect-tests.sh -d result "$project"
+        The status should equal 0
+        The error should include 'TEST MESSAGE: cleanTest done!'
+        The error should include ':mod0:test'
+
+        The file "result/stdout" should not be empty directory
+        The file "result/xml-report/__mod0.tgz" should be file
+        The file "result/test-report/index.html" should be file
+        The file "result/test-report/__mod0/index.html" should be exist
+
+        # If retests have been done in the collect-tests,
+        # there should be difference in the timestamps listed in the reports.
+        Assert test -n "$(diff "result/test-report/__mod0/index.html" "index.html.old")"
+
+        The file summary-file should be file
+        The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+        The word "$SUMMARY_FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SUCCESSFUL"
+        The word "$SUMMARY_FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
+        The word "$SUMMARY_FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "passed"
+        The word "$SUMMARY_FIELD_COUNT_PASS" of line 1 of contents of file summary-file should equal 2
+        The word "$SUMMARY_FIELD_COUNT_FAIL" of line 1 of contents of file summary-file should equal 0
+        The word "$SUMMARY_FIELD_COUNT_ERROR" of line 1 of contents of file summary-file should equal 0
+        The word "$SUMMARY_FIELD_COUNT_SKIP" of line 1 of contents of file summary-file should equal 0
+    End
+End
+
 Describe '--skip-tests;'
     BeforeAll 'install_app'
     AfterAll 'uninstall_app'
