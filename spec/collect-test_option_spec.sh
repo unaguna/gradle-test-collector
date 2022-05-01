@@ -48,6 +48,13 @@ Describe '--skip-tests;'
             ./gradlew build < /dev/null > /dev/null 2>&1
         )
 
+        # To ensure that if the test is accidentally executed again,
+        # the execution time (in seconds) will be different from the previous time.
+        %sleep 1
+
+        # Keep the results that already exist for comparison.
+        cp -p "$project/mod0/build/reports/tests/test/index.html" "index.html.old"
+
         When run collect-tests.sh --skip-tests -d result "$project"
         The status should equal 0
         The error should not include 'Deleting the cache of test result'
@@ -58,6 +65,10 @@ Describe '--skip-tests;'
         The file "result/xml-report" should not be empty directory
         The file "result/test-report/index.html" should be file
         The file "result/test-report/__mod0/index.html" should be file
+
+        # If no retests have been done in the collect-tests,
+        # there should be no difference in the timestamps listed in the reports.
+        Assert test -z "$(diff "result/test-report/__mod0/index.html" "index.html.old")"
 
         The file summary-file should be file
         The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
