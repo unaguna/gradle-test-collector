@@ -9,4 +9,5 @@ specfile
 specfiles
 tasklist
 taskoutput
+TESTCASE
 unaguna

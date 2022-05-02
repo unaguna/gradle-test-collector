@@ -60,12 +60,15 @@ uninstall_app() {
   rm -Rf "$app_dir"
 }
 setup() {
-  tmp_cd=$(mktemp -d)
-  readonly tmp_cd
-  cd "$tmp_cd"
+  TESTCASE_HOME=$(mktemp -d)
+  readonly TESTCASE_HOME
+  cd "$TESTCASE_HOME"
+
+  export GRADLE_USER_HOME="$TESTCASE_HOME/gradle_user_home"
+  mkdir "$GRADLE_USER_HOME"
 }
 clean() {
-  rm -Rf "$tmp_cd"
+  rm -Rf "$TESTCASE_HOME"
 }
 
 deploy_prj() {
@@ -80,4 +83,19 @@ deploy_prj() {
 
   # rename resource files
   find "$target/$prj_name" -name '*.resource' | sed 'p;s/.resource$//' | xargs -n 2 mv
+}
+
+deploy_init_script() {
+  test -d "$GRADLE_USER_HOME"
+
+  init_d="$GRADLE_USER_HOME/init.d"
+
+  rm -Rf "$init_d"
+  mkdir "$init_d"
+  if [ $# -gt 0 ]; then 
+    (
+      cd "$SHELLSPEC_PROJECT_ROOT/spec/resources/init.gradle"
+      cp "$@" "$init_d"
+    )
+  fi
 }

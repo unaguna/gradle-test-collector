@@ -13,6 +13,7 @@ Describe 'collect-tests.sh'
         project='prj-2000-selfAssertiveCleanTest'
 
         deploy_prj "$project" .
+        deploy_init_script 'test-log.gradle'
         (
             cd "$project"
             ./gradlew build < /dev/null > /dev/null 2>&1
@@ -25,15 +26,19 @@ Describe 'collect-tests.sh'
         # Keep the results that already exist for comparison.
         cp -p "$project/mod0/build/reports/tests/test/index.html" "index.html.old"
 
+        export TEST_LOG="$TESTCASE_HOME/test.log"
+        touch "$TEST_LOG"
+
         When run collect-tests.sh -d result "$project"
         The status should equal 0
-        The error should include 'TEST MESSAGE: cleanTest done!'
         The error should include ':mod0:test'
 
         The file "result/stdout" should not be empty directory
         The file "result/xml-report/__mod0.tgz" should be file
         The file "result/test-report/index.html" should be file
         The file "result/test-report/__mod0/index.html" should be exist
+
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :cleanTest done'
 
         # If retests have been done in the collect-tests,
         # there should be difference in the timestamps listed in the reports.

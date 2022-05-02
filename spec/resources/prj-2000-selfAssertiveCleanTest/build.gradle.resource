@@ -9,9 +9,4 @@ allprojects {
     repositories {
         mavenCentral()
     }
-    cleanTest { task ->
-        doLast {
-            System.err.println('TEST MESSAGE: cleanTest done!')
-        }
-    }
 }

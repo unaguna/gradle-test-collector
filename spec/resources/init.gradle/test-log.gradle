@@ -1,0 +1,16 @@
+// Initialization scripts to produce the output required by the test.
+
+allprojects {
+    tasks.whenTaskAdded { task ->
+        def testLogPath = System.getenv()['TEST_LOG']
+        if(testLogPath != null) {
+            def testLog = file(testLogPath)
+            task.doFirst {
+                testLog.append "TEST LOG: ${task.path} running\n"
+            }
+            task.doLast {
+                testLog.append "TEST LOG: ${task.path} done\n"
+            }
+        }
+    }
+}
