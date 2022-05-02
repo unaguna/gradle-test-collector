@@ -31,14 +31,15 @@ Describe 'collect-tests.sh'
 
         When run collect-tests.sh -d result "$project"
         The status should equal 0
-        The error should include ':mod0:test'
+        The error should include 'Collecting the test results'
+
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :cleanTest done'
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :mod0:test running'
 
         The file "result/stdout" should not be empty directory
         The file "result/xml-report/__mod0.tgz" should be file
         The file "result/test-report/index.html" should be file
         The file "result/test-report/__mod0/index.html" should be exist
-
-        The contents of file "$TEST_LOG" should include 'TEST LOG: :cleanTest done'
 
         # If retests have been done in the collect-tests,
         # there should be difference in the timestamps listed in the reports.
@@ -67,13 +68,18 @@ Describe '--skip-tests;'
         project='prj-1000-1100-brokenCleanTest'
 
         deploy_prj "$project" .
+        deploy_init_script 'test-log.gradle'
+
+        export TEST_LOG="$TESTCASE_HOME/test.log"
+        touch "$TEST_LOG"
 
         When run collect-tests.sh --skip-tests -d result "$project"
         The status should equal 0
-        The error should not include 'Deleting the cache of test result'
-        The error should include 'The tests are skipped'
-        The error should not include ':mod0:test'
-        The error should not include ':mod1:test'
+        The error should include 'Collecting the test results'
+
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :cleanTest done'
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :mod0:test running'
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :mod1:test running'
 
         The file "result/stdout" should be empty directory
         The file "result/xml-report" should be empty directory
@@ -97,6 +103,7 @@ Describe '--skip-tests;'
         project='prj-2000-brokenCleanTest'
 
         deploy_prj "$project" .
+        deploy_init_script 'test-log.gradle'
         (
             cd "$project"
             ./gradlew build < /dev/null > /dev/null 2>&1
@@ -109,11 +116,15 @@ Describe '--skip-tests;'
         # Keep the results that already exist for comparison.
         cp -p "$project/mod0/build/reports/tests/test/index.html" "index.html.old"
 
+        export TEST_LOG="$TESTCASE_HOME/test.log"
+        touch "$TEST_LOG"
+
         When run collect-tests.sh --skip-tests -d result "$project"
         The status should equal 0
-        The error should not include 'Deleting the cache of test result'
-        The error should include 'The tests are skipped'
-        The error should not include ':mod0:test'
+        The error should include 'Collecting the test results'
+
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :cleanTest done'
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :mod0:test running'
 
         The file "result/stdout" should be empty directory
         The file "result/xml-report" should not be empty directory
@@ -147,12 +158,18 @@ Describe '--run-only-updated;'
         project='prj-1000-1100-brokenCleanTest'
 
         deploy_prj "$project" .
+        deploy_init_script 'test-log.gradle'
+
+        export TEST_LOG="$TESTCASE_HOME/test.log"
+        touch "$TEST_LOG"
 
         When run collect-tests.sh --run-only-updated -d result "$project"
         The status should equal 0
-        The error should not include 'Deleting the cache of test result'
-        The error should include ':mod0:test'
-        The error should include ':mod1:test'
+        The error should include 'Collecting the test results'
+
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :cleanTest done'
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :mod0:test running'
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :mod1:test running'
 
         The file "result/stdout" should not be empty directory
         The file "result/xml-report/__mod0.tgz" should be file
@@ -185,6 +202,9 @@ Describe '--run-only-updated;'
         project='prj-2000-brokenCleanTest'
 
         deploy_prj "$project" .
+        deploy_init_script 'test-log.gradle'
+        export TEST_LOG="$TESTCASE_HOME/test.log"
+        touch "$TEST_LOG"
         (
             cd "$project"
             ./gradlew build < /dev/null > /dev/null 2>&1
@@ -199,8 +219,10 @@ Describe '--run-only-updated;'
 
         When run collect-tests.sh --run-only-updated -d result "$project"
         The status should equal 0
-        The error should not include 'Deleting the cache of test result'
-        The error should include ':mod0:test'
+        The error should include 'Collecting the test results'
+
+        The contents of file "$TEST_LOG" should not include 'TEST LOG: :cleanTest done'
+        The contents of file "$TEST_LOG" should include 'TEST LOG: :mod0:test running'
 
         The file "result/stdout" should not be empty directory
         The file "result/xml-report/__mod0.tgz" should be file
