@@ -23,6 +23,8 @@ spec_helper_configure() {
   : import 'support/custom_matcher'
 }
 
+export RESOURCES_ROOT="$SHELLSPEC_PROJECT_ROOT/spec/resources"
+
 export SUMMARY_FIELD_PROJECT_NAME=1
 export SUMMARY_FIELD_BUILD_STATUS=2
 export SUMMARY_FIELD_TASK_STATUS=3
@@ -76,8 +78,8 @@ deploy_prj() {
   target="$2"
 
   mkdir "$target/$prj_name"
-  find "$SHELLSPEC_PROJECT_ROOT/spec/resources/prj-base" \
-    "$SHELLSPEC_PROJECT_ROOT/spec/resources/$prj_name" \
+  find "$RESOURCES_ROOT/prj-base" \
+    "$RESOURCES_ROOT/$prj_name" \
     -mindepth 1 -maxdepth 1 -print0 | \
   xargs -0 -I {} cp -pr {} "$target/$prj_name"
 
@@ -94,7 +96,7 @@ deploy_init_script() {
   mkdir "$init_d"
   if [ $# -gt 0 ]; then 
     (
-      cd "$SHELLSPEC_PROJECT_ROOT/spec/resources/init.gradle"
+      cd "$RESOURCES_ROOT/init.gradle"
       cp "$@" "$init_d"
     )
   fi
