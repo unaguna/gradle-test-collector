@@ -70,4 +70,100 @@ Describe 'create-report-index' python create-report-index
         The line 33 of contents of file "$report_dest/index.html" should equal ''
         The line 34 of contents of file "$report_dest/index.html" should equal ''
     End
+
+    It 'runs Mustache with a correct model when the test task is skipped'
+        project='prj-skipped'
+        report_dest='report'
+        template_file='template-first-mod'
+
+        deploy_prj "$project" .
+        collect-tests.sh -d result "$project" > /dev/null 2>&1
+
+        cp "$RESOURCES_ROOT/index-template/$template_file" .
+
+        mkdir "$report_dest"
+
+        When run "$APP_INSTALL_DIR/libs/create-report-index.py" 'result/summary.txt' "$report_dest" \
+            --template-index "$template_file" --template-top "$template_file"
+        The status should equal 0
+        The output should equal ''
+        The error should equal ''
+
+        The file "$report_dest/index.html" should be exist
+        The file "$report_dest/top.html" should be exist
+        Assert test -z "$(diff "$report_dest/index.html" "$report_dest/top.html")"
+
+        The line 1 of contents of file "$report_dest/index.html" should equal ':mod0'
+        The line 2 of contents of file "$report_dest/index.html" should equal 'SKIPPED'
+        The line 3 of contents of file "$report_dest/index.html" should equal 'False'
+        The line 4 of contents of file "$report_dest/index.html" should equal ''
+        The line 5 of contents of file "$report_dest/index.html" should equal ''
+        The line 6 of contents of file "$report_dest/index.html" should equal ''
+        The line 7 of contents of file "$report_dest/index.html" should equal ''
+        The line 8 of contents of file "$report_dest/index.html" should equal ''
+    End
+
+    It 'runs Mustache with a correct model when the test task does not exist'
+        project='prj-no-task'
+        report_dest='report'
+        template_file='template-first-mod'
+
+        deploy_prj "$project" .
+        collect-tests.sh -d result "$project" > /dev/null 2>&1
+
+        cp "$RESOURCES_ROOT/index-template/$template_file" .
+
+        mkdir "$report_dest"
+
+        When run "$APP_INSTALL_DIR/libs/create-report-index.py" 'result/summary.txt' "$report_dest" \
+            --template-index "$template_file" --template-top "$template_file"
+        The status should equal 0
+        The output should equal ''
+        The error should equal ''
+
+        The file "$report_dest/index.html" should be exist
+        The file "$report_dest/top.html" should be exist
+        Assert test -z "$(diff "$report_dest/index.html" "$report_dest/top.html")"
+
+        The line 1 of contents of file "$report_dest/index.html" should equal ':mod0'
+        The line 2 of contents of file "$report_dest/index.html" should equal 'NO-TASK'
+        The line 3 of contents of file "$report_dest/index.html" should equal 'False'
+        The line 4 of contents of file "$report_dest/index.html" should equal ''
+        The line 5 of contents of file "$report_dest/index.html" should equal ''
+        The line 6 of contents of file "$report_dest/index.html" should equal ''
+        The line 7 of contents of file "$report_dest/index.html" should equal ''
+        The line 8 of contents of file "$report_dest/index.html" should equal ''
+    End
+
+    It 'runs Mustache with a correct model when there is no source'
+        project='prj-no-source'
+        report_dest='report'
+        template_file='template-first-mod'
+
+        deploy_prj "$project" .
+        collect-tests.sh -d result "$project" > /dev/null 2>&1
+
+        cp "$RESOURCES_ROOT/index-template/$template_file" .
+
+        mkdir "$report_dest"
+
+        When run "$APP_INSTALL_DIR/libs/create-report-index.py" 'result/summary.txt' "$report_dest" \
+            --template-index "$template_file" --template-top "$template_file"
+        The status should equal 0
+        The output should equal ''
+        The error should equal ''
+
+        The file "$report_dest/index.html" should be exist
+        The file "$report_dest/top.html" should be exist
+        Assert test -z "$(diff "$report_dest/index.html" "$report_dest/top.html")"
+
+        The line 1 of contents of file "$report_dest/index.html" should equal ':mod0'
+        The line 2 of contents of file "$report_dest/index.html" should equal 'NO-SOURCE'
+        The line 3 of contents of file "$report_dest/index.html" should equal 'False'
+        The line 4 of contents of file "$report_dest/index.html" should equal ''
+        The line 5 of contents of file "$report_dest/index.html" should equal ''
+        The line 6 of contents of file "$report_dest/index.html" should equal ''
+        The line 7 of contents of file "$report_dest/index.html" should equal ''
+        The line 8 of contents of file "$report_dest/index.html" should equal ''
+    End
 End
