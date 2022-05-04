@@ -11,6 +11,12 @@
             "addWords": true,
             "scope": "workspace"
         },
+        "custom-dictionary-python": {
+            "name": "custom-dictionary-python",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-python.txt",
+            "addWords": true,
+            "scope": "workspace"
+        },
         "custom-dictionary-project": {
             "name": "custom-dictionary-project",
             "path": "${workspaceFolder}/.cspell/custom-dictionary-project.txt",
