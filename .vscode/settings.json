@@ -11,6 +11,12 @@
             "addWords": true,
             "scope": "workspace"
         },
+        "custom-dictionary-gradle": {
+            "name": "custom-dictionary-gradle",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-gradle.txt",
+            "addWords": true,
+            "scope": "workspace"
+        },
         "custom-dictionary-python": {
             "name": "custom-dictionary-python",
             "path": "${workspaceFolder}/.cspell/custom-dictionary-python.txt",
@@ -35,6 +41,11 @@
         "-x"
     ],
     "cSpell.enableFiletypes": [
-        "mustache"
+        "groovy",
+        "html",
+        "java",
+        "mustache",
+        "python",
+        "shellscript"
     ]
 }
