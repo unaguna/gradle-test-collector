@@ -44,17 +44,18 @@ install_app() {
   # Create temporary directories
   app_dir=$(mktemp -d)
   readonly app_dir
-  readonly app_install_dir="$app_dir/exe"
+  export APP_INSTALL_DIR="$app_dir/exe"
+  readonly APP_INSTALL_DIR
   readonly app_bin_dir="$app_dir/bin"
-  mkdir "$app_install_dir" "$app_bin_dir"
+  mkdir "$APP_INSTALL_DIR" "$app_bin_dir"
 
   # Install the application (1/2)
-  cd "$app_install_dir"
+  cd "$APP_INSTALL_DIR"
   tar -xzf "$archive"
 
   # Install the application (2/2)
   cd "$app_bin_dir"
-  ln -s "$app_install_dir/collect-tests.sh" .
+  ln -s "$APP_INSTALL_DIR/collect-tests.sh" .
   PATH="$app_bin_dir:$PATH"
   export PATH
 }
