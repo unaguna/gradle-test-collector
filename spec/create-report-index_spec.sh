@@ -11,7 +11,7 @@ Describe 'create-report-index' python create-report-index
     It 'runs Mustache with a correct model'
         project='prj-1000-1100'
         report_dest='report'
-        template_file='template-whole-prj-1000-1100'
+        template_file='template-whole-prj-1000-1100.mustache'
 
         deploy_prj "$project" .
         collect-tests.sh -d result "$project" > /dev/null 2>&1
@@ -74,7 +74,7 @@ Describe 'create-report-index' python create-report-index
     It 'runs Mustache with a correct model when the test task is skipped'
         project='prj-skipped'
         report_dest='report'
-        template_file='template-first-mod'
+        template_file='template-first-mod.mustache'
 
         deploy_prj "$project" .
         collect-tests.sh -d result "$project" > /dev/null 2>&1
@@ -106,7 +106,7 @@ Describe 'create-report-index' python create-report-index
     It 'runs Mustache with a correct model when the test task does not exist'
         project='prj-no-task'
         report_dest='report'
-        template_file='template-first-mod'
+        template_file='template-first-mod.mustache'
 
         deploy_prj "$project" .
         collect-tests.sh -d result "$project" > /dev/null 2>&1
@@ -138,7 +138,7 @@ Describe 'create-report-index' python create-report-index
     It 'runs Mustache with a correct model when there is no source'
         project='prj-no-source'
         report_dest='report'
-        template_file='template-first-mod'
+        template_file='template-first-mod.mustache'
 
         deploy_prj "$project" .
         collect-tests.sh -d result "$project" > /dev/null 2>&1
