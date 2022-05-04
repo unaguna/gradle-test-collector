@@ -1,7 +1,15 @@
 abspath
+datetime
 dfor
+kcov
+precheck
 prjoutput
 projectlist
+shellspec
+specfile
+specfiles
 tasklist
 taskoutput
+TESTCASE
+testcases
 unaguna
