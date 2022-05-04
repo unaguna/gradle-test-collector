@@ -106,6 +106,23 @@ Describe 'summary.txt, output of collect-tests.sh,'
             The word "$SUMMARY_FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "NO-RESULT"
         End
 
+        Example 'when test task has no testcase'
+            Path summary-file=result/summary.txt
+            project='prj-no-tests'
+
+            deploy_prj "$project" .
+
+            When run collect-tests.sh -d result "$project"
+            The status should equal 0
+            The error should include ':mod0:test'
+
+            The file summary-file should be file
+            The word "$SUMMARY_FIELD_PROJECT_NAME" of line 1 of contents of file summary-file should equal ":mod0"
+            The word "$SUMMARY_FIELD_BUILD_STATUS" of line 1 of contents of file summary-file should equal "SUCCESSFUL"
+            The word "$SUMMARY_FIELD_TASK_STATUS" of line 1 of contents of file summary-file should equal "null"
+            The word "$SUMMARY_FIELD_TEST_STATUS" of line 1 of contents of file summary-file should equal "NO-RESULT"
+        End
+
         Example 'when test task has no source'
             Path summary-file=result/summary.txt
             project='prj-no-source'
