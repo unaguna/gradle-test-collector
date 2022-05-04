@@ -1,5 +1,6 @@
 maxdepth
 mindepth
+mkdir
 mktemp
 myprog
 readlink

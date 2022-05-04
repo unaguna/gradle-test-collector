@@ -47,5 +47,10 @@
         "mustache",
         "python",
         "shellscript"
+    ],
+    "cSpell.ignorePaths": [
+        ".git/objects",
+        ".vscode",
+        ".vscode-insiders"
     ]
 }
