@@ -23,6 +23,14 @@ This project uses python in some parts. Although python has many variations of i
 - Format code by **[Black](https://black.readthedocs.io/en/stable/)**
   - If you use vscode, auto-formatting will runs. Otherwise, write code that conforms to Block in some way.
 
+## Test
+
+In this project, [shellspec](https://github.com/shellspec/shellspec) is used for testing.
+Install the version of shellspec used in [the GitHub Action](.github/workflows/check.yml) on the development terminal and run the test using the following command:
+
+```shell
+shellspec
+```
 
 ## Release
 
