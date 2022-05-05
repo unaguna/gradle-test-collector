@@ -35,8 +35,11 @@ export SUMMARY_FIELD_COUNT_ERROR=8
 export SUMMARY_FIELD_COUNT_SKIP=9
 
 install_app() {
+  build_work_dir=$(mktemp -d)
+  readonly build_work_dir
+
   # Build the application
-  ./build.sh
+  GTC_BUILD_WORK_DIR="$build_work_dir" ./build.sh
   cd build/release
   archive="$(pwd)/$(find . -type f -name '*.tgz' | head -n1)"
   readonly archive
@@ -58,6 +61,8 @@ install_app() {
   ln -s "$APP_INSTALL_DIR/collect-tests.sh" .
   PATH="$app_bin_dir:$PATH"
   export PATH
+
+  rm -Rf "$build_work_dir"
 }
 uninstall_app() {
   rm -Rf "$app_dir"
