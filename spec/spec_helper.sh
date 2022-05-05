@@ -40,7 +40,7 @@ install_app() {
 
   # Build the application
   GTC_BUILD_WORK_DIR="$build_work_dir" ./build.sh
-  cd build/release
+  cd "$build_work_dir/release"
   archive="$(pwd)/$(find . -type f -name '*.tgz' | head -n1)"
   readonly archive
 
