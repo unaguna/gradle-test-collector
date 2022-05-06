@@ -90,6 +90,10 @@ function usage_exit () {
     exit "$1"
 }
 
+function echo_version() {
+    echo "$GRADLE_TEST_COLLECTOR_APP_NAME $GRADLE_TEST_COLLECTOR_VERSION"
+}
+
 function echo_help () {
     echo "$GRADLE_TEST_COLLECTOR_APP_NAME $GRADLE_TEST_COLLECTOR_VERSION"
     echo ""
@@ -190,6 +194,7 @@ declare -a argv=()
 output_dir_list=()
 run_only_updated_flg=1
 skip_tests_flg=1
+version_flg=1
 help_flg=1
 invalid_option_flg=1
 while (( $# > 0 )); do
@@ -207,6 +212,8 @@ while (( $# > 0 )); do
                 run_only_updated_flg=0
             elif [[ "$1" == "--skip-tests" ]]; then
                 skip_tests_flg=0
+            elif [[ "$1" == "--version" ]]; then
+                version_flg=0
             elif [[ "$1" == "--help" ]]; then
                 help_flg=0
                 # Ignore other arguments when displaying help
@@ -233,6 +240,11 @@ fi
 
 if [ "$help_flg" -eq 0 ]; then
     echo_help
+    exit 0
+fi
+
+if [ "$version_flg" -eq 0 ]; then
+    echo_version
     exit 0
 fi
 
