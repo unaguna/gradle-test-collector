@@ -1,0 +1,20 @@
+name: version inclement check
+
+on:
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  check-version-inclement:
+    strategy:
+      fail-fast: false
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Check the current version not exist
+        run: |
+          APP_VERSION=$(cat .version)
+          ! git tag | grep -e "$APP_VERSION"
