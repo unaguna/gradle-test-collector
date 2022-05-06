@@ -8,7 +8,42 @@ on:
   workflow_dispatch:
 
 jobs:
-  check:
+  shellspec:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - name: Setup Java JDK
+        uses: actions/setup-java@v3.1.0
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
+      - name: Install shellspec
+        run: |
+          cd ~
+          wget https://github.com/shellspec/shellspec/releases/download/0.28.1/shellspec-dist.tar.gz
+          tar -xzf shellspec-dist.tar.gz
+          ln -s $(pwd)/shellspec/shellspec /usr/local/bin/shellspec
+          ls -l /usr/local/bin/shellspec
+
+      - name: Checkout the repository
+        uses: actions/checkout@v3
+
+      - name: Setup Python
+        uses: actions/setup-python@v3.1.0
+        with:
+          python-version: '3.9'
+          cache: 'pip'
+
+      - run: pip install -r requirements.txt
+
+      - run: shellspec
+
+  run-once:
     strategy:
       fail-fast: false
       matrix:

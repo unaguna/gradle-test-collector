@@ -1,2 +1,8 @@
+maxdepth
+mindepth
+mkdir
 mktemp
+myprog
 readlink
+setenv
+unsetenv

@@ -1,9 +1,25 @@
 {
     "files.eol": "\n",
+    "files.associations": {
+        "*.gradle.kts.resource": "kotlinscript",
+        "*.gradle.resource": "groovy",
+    },
     "cSpell.customDictionaries": {
         "custom-dictionary-linux": {
             "name": "custom-dictionary-linux",
             "path": "${workspaceFolder}/.cspell/custom-dictionary-linux.txt",
+            "addWords": true,
+            "scope": "workspace"
+        },
+        "custom-dictionary-gradle": {
+            "name": "custom-dictionary-gradle",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-gradle.txt",
+            "addWords": true,
+            "scope": "workspace"
+        },
+        "custom-dictionary-python": {
+            "name": "custom-dictionary-python",
+            "path": "${workspaceFolder}/.cspell/custom-dictionary-python.txt",
             "addWords": true,
             "scope": "workspace"
         },
@@ -23,5 +39,18 @@
     },
     "shellcheck.customArgs": [
         "-x"
+    ],
+    "cSpell.enableFiletypes": [
+        "groovy",
+        "html",
+        "java",
+        "mustache",
+        "python",
+        "shellscript"
+    ],
+    "cSpell.ignorePaths": [
+        ".git/objects",
+        ".vscode",
+        ".vscode-insiders"
     ]
 }
