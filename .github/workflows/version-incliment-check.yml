@@ -16,7 +16,13 @@ jobs:
         with:
           fetch-depth: 0
 
-      - name: Check the current version not exist
+      - name: check the version listed in ./.version still not exist
         run: |
+          echo "Version in src: $(cat .version)"
+          echo ""
+          echo "Existing version tags"
+          git tag
+          echo ""
+          echo "Result"
           APP_VERSION=$(cat .version)
           ! git tag | grep -e "$APP_VERSION"
