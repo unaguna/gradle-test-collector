@@ -64,6 +64,10 @@ readonly GRADLE_TEST_COLLECTOR_VERSION
 GRADLE_TEST_COLLECTOR_APP_NAME="Gradle Test Collector"
 export GRADLE_TEST_COLLECTOR_APP_NAME
 readonly GRADLE_TEST_COLLECTOR_APP_NAME
+# Application name
+GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE="gtc"
+export GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE
+readonly GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE
 # Application URL
 GRADLE_TEST_COLLECTOR_URL="https://github.com/unaguna/gradle-test-collector"
 export GRADLE_TEST_COLLECTOR_URL
@@ -353,6 +357,7 @@ cd "$main_project_dir"
 
 readonly stdout_dir="$output_dir/stdout"
 readonly summary_path="$output_dir/summary.txt"
+readonly app_version_path="$output_dir/$GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE-version.txt"
 readonly gradle_version_path="$output_dir/gradle-version.txt"
 readonly output_report_dir="$output_dir/test-report"
 readonly output_xml_dir="$output_dir/xml-report"
@@ -371,6 +376,9 @@ fi
 if [ -n "$output_xml_dir" ]; then
     mkdir "$output_xml_dir"
 fi
+
+# Output self version
+echo_version > "$app_version_path"
 
 # Get the gradle version
 echo_info "Loading gradle"
