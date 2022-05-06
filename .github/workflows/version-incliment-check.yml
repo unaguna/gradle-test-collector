@@ -16,5 +16,7 @@ jobs:
 
       - name: Check the current version not exist
         run: |
+          echo "$(cat .version)"
+          git tag
           APP_VERSION=$(cat .version)
           ! git tag | grep -e "$APP_VERSION"
