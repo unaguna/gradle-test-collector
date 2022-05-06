@@ -2,7 +2,7 @@
 
 set -e
 
-Describe 'collect-tests.sh' gradle-version
+Describe 'collect-tests.sh' output-version
     BeforeAll 'install_app'
     AfterAll 'uninstall_app'
     BeforeEach 'setup'
