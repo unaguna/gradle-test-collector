@@ -64,6 +64,10 @@ readonly GRADLE_TEST_COLLECTOR_VERSION
 GRADLE_TEST_COLLECTOR_APP_NAME="Gradle Test Collector"
 export GRADLE_TEST_COLLECTOR_APP_NAME
 readonly GRADLE_TEST_COLLECTOR_APP_NAME
+# Application name
+GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE="gtc"
+export GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE
+readonly GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE
 # Application URL
 GRADLE_TEST_COLLECTOR_URL="https://github.com/unaguna/gradle-test-collector"
 export GRADLE_TEST_COLLECTOR_URL
@@ -88,6 +92,10 @@ source "$SCRIPT_DIR/libs/ana-gradle.sh"
 function usage_exit () {
     echo "Usage:" "$(basename "$0") -d <output_directory> [--run-only-updated|--skip-tests] <main_project_directory>" 1>&2
     exit "$1"
+}
+
+function echo_version() {
+    echo "$GRADLE_TEST_COLLECTOR_APP_NAME $GRADLE_TEST_COLLECTOR_VERSION"
 }
 
 function echo_help () {
@@ -190,6 +198,7 @@ declare -a argv=()
 output_dir_list=()
 run_only_updated_flg=1
 skip_tests_flg=1
+version_flg=1
 help_flg=1
 invalid_option_flg=1
 while (( $# > 0 )); do
@@ -207,6 +216,8 @@ while (( $# > 0 )); do
                 run_only_updated_flg=0
             elif [[ "$1" == "--skip-tests" ]]; then
                 skip_tests_flg=0
+            elif [[ "$1" == "--version" ]]; then
+                version_flg=0
             elif [[ "$1" == "--help" ]]; then
                 help_flg=0
                 # Ignore other arguments when displaying help
@@ -233,6 +244,11 @@ fi
 
 if [ "$help_flg" -eq 0 ]; then
     echo_help
+    exit 0
+fi
+
+if [ "$version_flg" -eq 0 ]; then
+    echo_version
     exit 0
 fi
 
@@ -341,6 +357,8 @@ cd "$main_project_dir"
 
 readonly stdout_dir="$output_dir/stdout"
 readonly summary_path="$output_dir/summary.txt"
+readonly app_version_path="$output_dir/$GRADLE_TEST_COLLECTOR_APP_NAME_SHORTAGE-version.txt"
+readonly gradle_version_path="$output_dir/gradle-version.txt"
 readonly output_report_dir="$output_dir/test-report"
 readonly output_xml_dir="$output_dir/xml-report"
 
@@ -358,6 +376,13 @@ fi
 if [ -n "$output_xml_dir" ]; then
     mkdir "$output_xml_dir"
 fi
+
+# Output self version
+echo_version > "$app_version_path"
+
+# Get the gradle version
+echo_info "Loading gradle"
+"$gradle_exe" --version < /dev/null > "$gradle_version_path"
 
 # Get sub-projects list
 echo_info "Loading project list"
