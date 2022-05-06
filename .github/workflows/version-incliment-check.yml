@@ -25,4 +25,4 @@ jobs:
           echo ""
           echo "Result"
           APP_VERSION=$(cat .version)
-          ! git tag | grep -e "$APP_VERSION"
+          ! git tag | grep -e "^V$APP_VERSION$"
